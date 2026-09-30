@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-PT" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -42,14 +42,14 @@
             <span class="text-3xl">💸</span>
           </div>
           <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Bem-vindo ao Fluxo</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Faça login para acessar</p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Faz login para aceder</p>
         </div>
         
         <form @submit.prevent="handleLogin" class="space-y-4">
           <div><label class="block text-sm font-semibold mb-1">E-mail</label><input v-model="loginEmail" type="email" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm"></div>
-          <div><label class="block text-sm font-semibold mb-1">Senha</label><input v-model="loginPassword" type="password" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm"></div>
+          <div><label class="block text-sm font-semibold mb-1">Palavra-passe</label><input v-model="loginPassword" type="password" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm"></div>
           <div v-if="loginError" class="p-3 rounded-lg bg-rose-500/10 text-rose-600 text-xs font-semibold text-center">{{ loginError }}</div>
-          <button type="submit" :disabled="isLoggingIn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg">{{ isLoggingIn ? 'Verificando...' : 'Entrar' }}</button>
+          <button type="submit" :disabled="isLoggingIn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg">{{ isLoggingIn ? 'A verificar...' : 'Entrar' }}</button>
         </form>
 
         <div class="mt-6 flex items-center justify-between">
@@ -84,9 +84,9 @@
 
           <div class="flex items-center gap-2 sm:gap-3">
             <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-              <button @click="changeMonth(-1)" class="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-md transition text-slate-600 dark:text-slate-300"> < </button>
+              <button @click="changeMonth(-1)" class="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-md transition text-slate-600 dark:text-slate-300"> &lt; </button>
               <span class="px-2 sm:px-3 text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-w-[90px] sm:min-w-[120px] text-center">{{ currentMonthFormatted }}</span>
-              <button @click="changeMonth(1)" class="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-md transition text-slate-600 dark:text-slate-300"> > </button>
+              <button @click="changeMonth(1)" class="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-md transition text-slate-600 dark:text-slate-300"> &gt; </button>
             </div>
 
             <button @click="openModal('transaction')" class="flex items-center gap-1 sm:gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm">
@@ -271,9 +271,9 @@
 
   <script>
     // ==================================================================
-    // COLOQUE AQUI AS SUAS CHAVES DO FIREBASE
+    // CHAVES DO FIREBASE ATUALIZADAS
     const firebaseConfig = {
-      apiKey: "AIzaSyC7aPuuv3OjoOeaRkdn3o7hyyJYnZBolHU",
+      apiKey: "AIzaSyC7aPuuv3OjoeaoRkdn3o7hyyjYnZBolHU",
       authDomain: "fluxo-financeiro-1ee39.firebaseapp.com",
       databaseURL: "https://fluxo-financeiro-1ee39-default-rtdb.firebaseio.com",
       projectId: "fluxo-financeiro-1ee39",
@@ -329,12 +329,18 @@
           catch (error) { loginError.value = 'As credenciais estão incorretas. Tente novamente.'; isLoggingIn.value = false; }
         };
 
-        // ALTERAÇÃO AQUI: Mudando de Popup para Redirecionamento de Página
-        const handleGoogleLogin = () => {
+        const handleGoogleLogin = async () => {
           isLoggingIn.value = true;
           loginError.value = '';
           const provider = new firebase.auth.GoogleAuthProvider();
-          auth.signInWithRedirect(provider);
+          
+          try {
+            await auth.signInWithRedirect(provider);
+          } catch (error) {
+            console.error("Erro ao contactar o Google:", error);
+            loginError.value = "Ocorreu um erro. Por favor, verifica as chaves ou a Consola (F12).";
+            isLoggingIn.value = false;
+          }
         };
 
         const handleLogout = async () => {
@@ -445,10 +451,9 @@
         const monthMetrics = computed(() => { return { incomeRealized: 0, expenseRealized: 0, netSavings: 0 }; });
 
         onMounted(() => {
-          // NOVO: Captura os erros se houver falha na volta do redirecionamento
           auth.getRedirectResult().catch((error) => {
-            console.error("Erro no redirecionamento do Google:", error);
-            loginError.value = "Falha ao entrar com o Google. Tente novamente.";
+            console.error("Erro na volta do Google:", error);
+            loginError.value = "Falha ao processar o login. Verifica a Consola (F12).";
             isLoggingIn.value = false;
           });
 
