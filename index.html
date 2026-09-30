@@ -115,19 +115,19 @@
             <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Despesas no Mês</span><div class="mt-2 flex items-baseline justify-between"><span class="text-2xl font-bold tracking-tight text-rose-600 dark:text-rose-400">-{{ formatCurrency(monthMetrics.expenseRealized) }}</span></div></div>
             <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Resultado do Mês</span><div class="mt-2 flex items-baseline justify-between"><span class="text-2xl font-bold tracking-tight" :class="monthMetrics.netSavings >= 0 ? 'text-indigo-600' : 'text-rose-600'">{{ formatCurrency(monthMetrics.netSavings) }}</span></div></div>
           </div>
-          <!-- Gráficos de volta! -->
+          <!-- Gráficos -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between"><h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Evolução Mensal</h3><div class="h-64 relative"><canvas id="flowHistoryChart"></canvas></div></div>
             <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between"><h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Despesas por Categoria</h3><div class="h-64 relative flex items-center justify-center"><canvas id="categoryDonutChart"></canvas></div></div>
           </div>
         </section>
 
-        <!-- ================= LANÇAMENTOS ================= -->
+        <!-- ================= LANÇAMENTOS (Restaurado com pesquisa e edição) ================= -->
         <section v-if="currentTab === 'transactions'" class="space-y-4">
           <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
             <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
               <div class="relative w-full md:w-80">
-                <input v-model="searchQuery" type="text" placeholder="Buscar descrição..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <input v-model="searchQuery" type="text" placeholder="Buscar descrição..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
               </div>
             </div>
           </div>
@@ -135,19 +135,46 @@
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
-                  <tr><th class="py-3.5 px-4">Data</th><th class="py-3.5 px-4">Descrição</th><th class="py-3.5 px-4">Categoria</th><th class="py-3.5 px-4 text-right">Valor</th><th class="py-3.5 px-4 text-center">Ações</th></tr>
+                  <tr><th class="py-3.5 px-4">Data</th><th class="py-3.5 px-4">Descrição</th><th class="py-3.5 px-4">Categoria</th><th class="py-3.5 px-4">Responsável</th><th class="py-3.5 px-4 text-right">Valor</th><th class="py-3.5 px-4 text-center">Ações</th></tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr v-for="item in filteredTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40 transition">
                     <td class="py-3 px-4 text-xs text-slate-500">{{ formatDateBr(item.date) }}</td>
                     <td class="py-3 px-4 font-medium">{{ item.description }}</td>
                     <td class="py-3 px-4 text-xs"><span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800">{{ getCategoryName(item.categoryId) }}</span></td>
+                    <td class="py-3 px-4 text-xs text-slate-500">{{ item.owner === 'pais' ? 'Meus Pais' : 'Meu' }}</td>
                     <td class="py-3 px-4 text-right font-bold" :class="item.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">{{ formatCurrency(item.amount) }}</td>
-                    <td class="py-3 px-4 text-center"><button @click="deleteTransaction(item.id)" class="text-rose-500 hover:underline text-xs">Excluir</button></td>
+                    <td class="py-3 px-4 text-center flex gap-2 justify-center">
+                      <button @click="editTransaction(item)" class="text-blue-500 hover:underline text-xs">Editar</button>
+                      <button @click="deleteTransaction(item.id)" class="text-rose-500 hover:underline text-xs">Excluir</button>
+                    </td>
                   </tr>
-                  <tr v-if="filteredTransactions.length === 0"><td colspan="5" class="py-8 text-center text-sm text-slate-400">Nenhum lançamento encontrado neste mês.</td></tr>
+                  <tr v-if="filteredTransactions.length === 0"><td colspan="6" class="py-8 text-center text-sm text-slate-400">Nenhum lançamento encontrado neste mês.</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= CATEGORIAS (Restaurado) ================= -->
+        <section v-if="currentTab === 'categories'" class="space-y-4">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Gerir Categorias</h3>
+            <button @click="openModal('category')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Nova Categoria</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div v-for="cat in categories" :key="cat.id" class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between group">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xl">{{ cat.icon || '📌' }}</div>
+                <div>
+                  <h4 class="font-bold text-sm text-slate-900 dark:text-white">{{ cat.name }}</h4>
+                  <p class="text-[10px] uppercase text-slate-500 font-semibold">{{ cat.type === 'income' ? 'Receita' : (cat.type === 'fixed_expense' ? 'Fixo' : 'Variável') }}</p>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button @click="editCategory(cat)" class="text-xs text-blue-500 hover:underline">Editar</button>
+                <button @click="deleteCategory(cat.id)" class="text-xs text-rose-500 hover:underline">Excluir</button>
+              </div>
             </div>
           </div>
         </section>
@@ -201,9 +228,10 @@
           </div>
         </section>
 
-        <!-- ================= RELATÓRIOS ================= -->
+        <!-- ================= RELATÓRIOS (Atualizado com separação de Responsáveis) ================= -->
         <section v-if="currentTab === 'reports'" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <div>
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white">Relatório Inteligente de Fatura</h2>
@@ -215,44 +243,59 @@
               </select>
             </div>
 
-            <div v-if="selectedReportCard" class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 p-4 rounded-xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <!-- Divisão de Custos da Fatura -->
+            <div v-if="selectedReportCard" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <div class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Total da Fatura</p>
+                <p class="text-2xl font-bold text-rose-600">{{ formatCurrency(invoiceTotal) }}</p>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Meu (Próprio)</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ formatCurrency(invoiceTotalMeu) }}</p>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Meus Pais</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ formatCurrency(invoiceTotalPais) }}</p>
+              </div>
+            </div>
+
+            <div v-if="selectedReportCard" class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 p-4 rounded-xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div class="flex gap-6 text-sm">
-                <div><span class="text-slate-500 block text-xs uppercase font-bold">Data de Fechamento</span><span class="font-bold text-slate-900 dark:text-white">{{ formatDateBr(currentInvoiceDetails.closingDate) }}</span></div>
-                <div><span class="text-slate-500 block text-xs uppercase font-bold">Data de Vencimento</span><span class="font-bold text-slate-900 dark:text-white">{{ formatDateBr(currentInvoiceDetails.dueDate) }}</span></div>
+                <div><span class="text-slate-500 block text-xs uppercase font-bold">Fechamento</span><span class="font-bold text-slate-900 dark:text-white">{{ formatDateBr(currentInvoiceDetails.closingDate) }}</span></div>
+                <div><span class="text-slate-500 block text-xs uppercase font-bold">Vencimento</span><span class="font-bold text-slate-900 dark:text-white">{{ formatDateBr(currentInvoiceDetails.dueDate) }}</span></div>
               </div>
               <button @click="openInvoiceDateModal" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm">
-                Ajustar Datas desta Fatura
+                Ajustar Datas
               </button>
             </div>
 
             <div v-if="selectedReportCard" class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
               <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
-                  <tr><th class="py-3 px-4">Data da Compra</th><th class="py-3 px-4">Descrição</th><th class="py-3 px-4 text-right">Valor (R$)</th></tr>
+                  <tr><th class="py-3 px-4">Data da Compra</th><th class="py-3 px-4">Descrição</th><th class="py-3 px-4">Responsável</th><th class="py-3 px-4 text-right">Valor (R$)</th></tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr v-for="item in invoiceTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40">
                     <td class="py-3 px-4 text-xs text-slate-500">{{ formatDateBr(item.date) }}</td>
                     <td class="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</td>
+                    <td class="py-3 px-4 text-xs font-medium" :class="item.owner === 'pais' ? 'text-blue-500' : 'text-indigo-500'">{{ item.owner === 'pais' ? 'Meus Pais' : 'Meu' }}</td>
                     <td class="py-3 px-4 text-right font-bold text-rose-600">{{ formatCurrency(item.amount) }}</td>
                   </tr>
-                  <tr v-if="invoiceTransactions.length === 0"><td colspan="3" class="py-6 text-center text-slate-500">Nenhum lançamento nesta fatura.</td></tr>
+                  <tr v-if="invoiceTransactions.length === 0"><td colspan="4" class="py-6 text-center text-slate-500">Nenhum lançamento nesta fatura.</td></tr>
                 </tbody>
-                <tfoot v-if="invoiceTransactions.length > 0" class="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800">
-                  <tr><td colspan="2" class="py-3 px-4 text-right text-xs text-slate-900 dark:text-white uppercase font-bold">Total da Fatura:</td><td class="py-3 px-4 text-right text-rose-600 font-bold text-base">{{ formatCurrency(invoiceTotal) }}</td></tr>
-                </tfoot>
               </table>
             </div>
           </div>
         </section>
       </main>
 
-      <!-- ================= MODAL NOVA MOVIMENTAÇÃO (COM PARCELAS) ================= -->
+      <!-- ================= MODAL NOVA MOVIMENTAÇÃO (Completo com Parcelas, Responsável e Subgrupo) ================= -->
       <div v-if="activeModal === 'transaction'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 h-auto max-h-[90vh] overflow-y-auto">
           <form @submit.prevent="saveTransaction" class="space-y-4">
+            <h3 class="text-lg font-bold mb-2 text-slate-900 dark:text-white">{{ editingTxId ? 'Editar Movimentação' : 'Nova Movimentação' }}</h3>
             
-            <div class="flex rounded-lg bg-slate-100 dark:bg-slate-800 p-1 mb-4 text-xs font-semibold">
+            <div class="flex rounded-lg bg-slate-100 dark:bg-slate-800 p-1 text-xs font-semibold">
               <button type="button" @click="txForm.type = 'expense'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'expense' ? 'bg-white dark:bg-slate-700 text-rose-600 shadow' : 'text-slate-500']">Despesa</button>
               <button type="button" @click="txForm.type = 'income'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'income' ? 'bg-white dark:bg-slate-700 text-emerald-600 shadow' : 'text-slate-500']">Receita</button>
             </div>
@@ -260,25 +303,40 @@
             <div><label class="block text-sm font-semibold mb-1">Descrição</label><input v-model="txForm.description" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
             
             <div class="grid grid-cols-2 gap-3">
-              <div><label class="block text-sm font-semibold mb-1">Valor Total (R$)</label><input v-model.number="txForm.amount" required type="number" step="0.01" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
-              <div><label class="block text-sm font-semibold mb-1">Data Inicial</label><input v-model="txForm.date" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
+              <div><label class="block text-sm font-semibold mb-1">Valor (R$)</label><input v-model.number="txForm.amount" required type="number" step="0.01" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
+              <div><label class="block text-sm font-semibold mb-1">Data</label><input v-model="txForm.date" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
             </div>
 
-            <!-- Categoria com botão de atalho -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Categoria</label>
-                <button type="button" @click="openCategoryFromTransaction" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">+ Criar Nova</button>
+            <!-- Categoria e Subgrupo -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Categoria</label>
+                  <button type="button" @click="openCategoryFromTransaction" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline">+ Criar</button>
+                </div>
+                <select v-model="txForm.categoryId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
+                  <option v-for="cat in availableCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                </select>
               </div>
-              <select v-model="txForm.categoryId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
-                <option v-for="cat in availableCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+              <div>
+                <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Subgrupo</label>
+                <input v-model="txForm.subCategory" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
+              </div>
+            </div>
+
+            <!-- Responsável -->
+            <div v-if="txForm.type !== 'transfer'">
+              <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Responsável</label>
+              <select v-model="txForm.owner" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
+                <option value="meu">Meu (Próprio)</option>
+                <option value="pais">Meus Pais</option>
               </select>
             </div>
 
             <!-- Método de Saída -->
             <div v-if="txForm.type === 'expense'" class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Método de Pagamento</label>
+                <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Método Pagamento</label>
                 <select v-model="txPaymentMethod" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
                   <option value="account">Conta Bancária</option>
                   <option value="card">Cartão de Crédito</option>
@@ -286,14 +344,14 @@
               </div>
               
               <div v-if="txPaymentMethod === 'account'">
-                <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Conta Selecionada</label>
+                <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Conta</label>
                 <select v-model="txForm.accountId" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
                   <option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option>
                 </select>
               </div>
               
               <div v-if="txPaymentMethod === 'card'">
-                <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Cartão Selecionado</label>
+                <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Cartão</label>
                 <select v-model="txForm.cardId" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
                   <option v-for="c in creditCards" :key="c.id" :value="c.id">{{ c.name }}</option>
                 </select>
@@ -307,8 +365,8 @@
               </select>
             </div>
 
-            <!-- PARCELAMENTO (Só aparece se for cartão de crédito) -->
-            <div v-if="txForm.type === 'expense' && txPaymentMethod === 'card'" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-200 dark:border-slate-700">
+            <!-- PARCELAMENTO (Bloqueado ao editar transação já existente para evitar erros lógicos) -->
+            <div v-if="txForm.type === 'expense' && txPaymentMethod === 'card' && !editingTxId" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-200 dark:border-slate-700">
               <div class="flex items-center justify-between">
                 <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Compra Parcelada?</span>
                 <input type="checkbox" v-model="isInstallmentCheckbox" class="rounded text-indigo-600 focus:ring-indigo-500">
@@ -316,12 +374,12 @@
               <div v-if="isInstallmentCheckbox" class="pt-2">
                 <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Número de Parcelas</label>
                 <input v-model.number="txInstallmentsCount" min="2" max="72" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
-                <p class="text-[10px] text-slate-500 mt-1">O valor será dividido automaticamente pelas faturas seguintes.</p>
+                <p class="text-[10px] text-slate-500 mt-1">O valor será dividido e gerado automaticamente para os próximos meses.</p>
               </div>
             </div>
 
             <!-- REPETIR MENSALMENTE -->
-            <div v-if="txForm.type !== 'transfer' && !isInstallmentCheckbox" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-200 dark:border-slate-700">
+            <div v-if="txForm.type !== 'transfer' && !isInstallmentCheckbox && !editingTxId" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-200 dark:border-slate-700">
               <div class="flex items-center justify-between">
                 <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Repetir Mensalmente (Fixo)?</span>
                 <input type="checkbox" v-model="isRecurringCheckbox" class="rounded text-indigo-600 focus:ring-indigo-500">
@@ -329,12 +387,17 @@
               <div v-if="isRecurringCheckbox" class="pt-2">
                 <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Por quantos meses?</label>
                 <input v-model.number="recurringCount" min="2" max="120" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
-                <p class="text-[10px] text-slate-500 mt-1">Serão criados lançamentos idênticos para os próximos meses.</p>
               </div>
             </div>
 
+            <!-- Pago / Recebido -->
+            <div class="flex items-center justify-between pt-1">
+              <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Já está pago/recebido?</label>
+              <input type="checkbox" v-model="txForm.isPaid" class="rounded text-indigo-600 focus:ring-indigo-500">
+            </div>
+
             <div class="flex justify-end gap-2 pt-4">
-              <button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
+              <button @click="activeModal = null; editingTxId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
               <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg font-semibold">Salvar</button>
             </div>
           </form>
@@ -345,8 +408,8 @@
       <div v-if="activeModal === 'category'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
           <form @submit.prevent="saveCategory" class="space-y-4 text-sm">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Nova Categoria</h3>
-            <div><label class="block font-semibold mb-1">Nome da Categoria</label><input v-model="categoryForm.name" required type="text" placeholder="Ex: Mercado, Lazer..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">{{ editingCategoryId ? 'Editar Categoria' : 'Nova Categoria' }}</h3>
+            <div><label class="block font-semibold mb-1">Nome da Categoria</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
             <div>
               <label class="block font-semibold mb-1">Tipo</label>
               <select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
@@ -355,25 +418,30 @@
                 <option value="variable_expense">Custo Variável</option>
               </select>
             </div>
-            <div><label class="block font-semibold mb-1">Ícone (Emoji)</label><input v-model="categoryForm.icon" type="text" placeholder="📌" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
+            <div><label class="block font-semibold mb-1">Ícone (Emoji)</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
             <div class="flex justify-end gap-2 pt-4">
               <button @click="closeCategoryModal" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
-              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar Categoria</button>
+              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
             </div>
           </form>
         </div>
       </div>
 
-      <!-- Outros Modais (Conta, Cartão, Datas) continuam ocultos aqui para poupar espaço visual, mas já estão definidos acima nas secções HTML -->
+      <!-- Modal Conta -->
       <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveAccount" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingAccountId ? 'Editar Conta' : 'Nova Conta' }}</h3><div><label class="block font-semibold mb-1">Nome</label><input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Saldo Inicial</label><input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-2"><button @click="activeModal = null; editingAccountId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+      
+      <!-- Modal Cartão -->
       <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCard" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCardId ? 'Editar Cartão' : 'Novo Cartão' }}</h3><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Apelido</label><input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Banco</label><input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Dia Fechamento</label><input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Dia Vencimento</label><input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="flex justify-end gap-2 pt-2"><button @click="activeModal = null; editingCardId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+      
+      <!-- Modal Exceção de Datas da Fatura -->
       <div v-if="activeModal === 'invoice_dates'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveInvoiceDates" class="space-y-4 text-sm"><h3 class="text-lg font-bold text-slate-900 dark:text-white">Ajustar Datas Específicas</h3><p class="text-xs text-slate-500 mb-4">Estas datas valerão apenas para a fatura de <b>{{ currentMonthFormatted }}</b> deste cartão.</p><div><label class="block font-semibold mb-1">Data Real de Fechamento</label><input v-model="invoiceDateForm.closingDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Data Real de Vencimento</label><input v-model="invoiceDateForm.dueDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar Exceção</button></div></form></div></div>
+
     </div>
   </div>
 
   <script>
     // ==================================================================
-    // AS CHAVES CORRETAS (MANTIDAS)
+    // CHAVES DO FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyC7aPuuv3OjoeaoRkdn3o7hyyjYnZBolHU",
       authDomain: "fluxo-financeiro-1ee39.firebaseapp.com",
@@ -404,10 +472,11 @@
         const previousModal = ref(null);
         const searchQuery = ref('');
         
-        // As 4 Abas Restauradas
+        // AS 5 ABAS RESTAURADAS
         const tabs = [
           { id: 'dashboard', name: 'Dashboard' }, 
           { id: 'transactions', name: 'Lançamentos' },
+          { id: 'categories', name: 'Categorias' },
           { id: 'accounts', name: 'Contas & Cartões' }, 
           { id: 'reports', name: 'Relatórios' }
         ];
@@ -418,8 +487,9 @@
         const transactions = ref([]);
         const invoiceExceptions = ref({}); 
 
-        // Formulário de Transação e Variáveis de Parcelamento
-        const txForm = ref({ description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: '', accountId: '', cardId: '' });
+        // Formulário Completo de Transação
+        const editingTxId = ref(null);
+        const txForm = ref({ description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: '', subCategory: '', owner: 'meu', accountId: '', cardId: '', isPaid: true });
         const txPaymentMethod = ref('account');
         const isInstallmentCheckbox = ref(false);
         const txInstallmentsCount = ref(2);
@@ -427,6 +497,7 @@
         const recurringCount = ref(2);
 
         // Formulário de Categoria
+        const editingCategoryId = ref(null);
         const categoryForm = ref({ name: '', type: 'variable_expense', icon: '📌' });
 
         const editingAccountId = ref(null);
@@ -446,7 +517,7 @@
           isLoggingIn.value = true; loginError.value = '';
           const provider = new firebase.auth.GoogleAuthProvider();
           try { await auth.signInWithPopup(provider); } 
-          catch (error) { console.error("Erro Google:", error); loginError.value = "Erro na janela do Google."; isLoggingIn.value = false; }
+          catch (error) { console.error("Erro Google:", error); loginError.value = "Erro na janela do Google. Tente novamente."; isLoggingIn.value = false; }
         };
 
         const handleLogout = async () => {
@@ -490,90 +561,91 @@
         const openModal = (type) => { 
           activeModal.value = type; 
           if(type === 'transaction') {
-            txForm.value = { description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: categories.value[0]?.id || '', accountId: accounts.value[0]?.id || '', cardId: creditCards.value[0]?.id || '' };
+            editingTxId.value = null;
+            txForm.value = { description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: categories.value[0]?.id || '', subCategory: '', owner: 'meu', accountId: accounts.value[0]?.id || '', cardId: creditCards.value[0]?.id || '', isPaid: true };
             txPaymentMethod.value = 'account'; isInstallmentCheckbox.value = false; isRecurringCheckbox.value = false;
+          } else if (type === 'category') {
+            editingCategoryId.value = null;
+            categoryForm.value = { name: '', type: 'variable_expense', icon: '📌' };
           }
         };
 
-        // Lógica Restaurada: Atalho Categoria
-        const openCategoryFromTransaction = () => {
-          previousModal.value = 'transaction';
-          categoryForm.value = { name: '', type: txForm.value.type === 'income' ? 'income' : 'variable_expense', icon: '📌' };
-          activeModal.value = 'category';
+        // ================= TRANSAÇÕES =================
+        const editTransaction = (item) => {
+          editingTxId.value = item.id;
+          txForm.value = { ...item };
+          txPaymentMethod.value = item.cardId ? 'card' : 'account';
+          activeModal.value = 'transaction';
         };
 
-        const closeCategoryModal = () => {
-          if (previousModal.value === 'transaction') { activeModal.value = 'transaction'; previousModal.value = null; } 
-          else { activeModal.value = null; }
-        };
-
-        const saveCategory = () => {
-          const newId = 'cat_' + Date.now();
-          categories.value.push({ id: newId, name: categoryForm.value.name, type: categoryForm.value.type, icon: categoryForm.value.icon || '📌' });
-          saveToStorage();
-          if (previousModal.value === 'transaction') { txForm.value.categoryId = newId; }
-          closeCategoryModal();
-        };
-
-        // Lógica Matemática Restaurada: Parcelas e Recorrentes
         const saveTransaction = () => {
           let baseDate = new Date(txForm.value.date + 'T00:00:00');
           let totalAmount = Number(txForm.value.amount);
           
-          if (txForm.value.type === 'expense' && txPaymentMethod.value === 'card' && isInstallmentCheckbox.value && txInstallmentsCount.value > 1) {
-            // Dividir o valor da parcela
-            let installmentAmount = parseFloat((totalAmount / txInstallmentsCount.value).toFixed(2));
-            for (let i = 0; i < txInstallmentsCount.value; i++) {
-              let d = new Date(baseDate);
-              d.setMonth(d.getMonth() + i); // Adiciona meses
-              let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-              
-              transactions.value.push({
-                id: 'tx_' + Date.now() + '_' + i,
-                description: `${txForm.value.description} (${i+1}/${txInstallmentsCount.value})`,
-                amount: installmentAmount,
-                date: dateStr,
-                type: txForm.value.type,
-                categoryId: txForm.value.categoryId,
-                cardId: txForm.value.cardId // Fica amarrado ao cartão para o relatório da fatura funcionar
-              });
-            }
-          } else if (isRecurringCheckbox.value && recurringCount.value > 1) {
-            // Repetir o mesmo valor
-            for (let i = 0; i < recurringCount.value; i++) {
-              let d = new Date(baseDate);
-              d.setMonth(d.getMonth() + i);
-              let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-              
-              transactions.value.push({
-                id: 'tx_' + Date.now() + '_' + i,
-                description: txForm.value.description,
-                amount: totalAmount,
-                date: dateStr,
-                type: txForm.value.type,
-                categoryId: txForm.value.categoryId,
-                accountId: txForm.value.accountId,
-                cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null
-              });
+          if (editingTxId.value) {
+            // Edição simples
+            const index = transactions.value.findIndex(t => t.id === editingTxId.value);
+            if (index !== -1) {
+              transactions.value[index] = { 
+                ...transactions.value[index], ...txForm.value, amount: totalAmount, cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null 
+              };
             }
           } else {
-            // Lançamento normal à vista
-            transactions.value.push({
-              id: 'tx_' + Date.now(),
-              description: txForm.value.description,
-              amount: totalAmount,
-              date: txForm.value.date,
-              type: txForm.value.type,
-              categoryId: txForm.value.categoryId,
-              accountId: txForm.value.accountId,
-              cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null
-            });
+            // Criação Nova
+            if (txForm.value.type === 'expense' && txPaymentMethod.value === 'card' && isInstallmentCheckbox.value && txInstallmentsCount.value > 1) {
+              // Parcelamento
+              let installmentAmount = parseFloat((totalAmount / txInstallmentsCount.value).toFixed(2));
+              for (let i = 0; i < txInstallmentsCount.value; i++) {
+                let d = new Date(baseDate); d.setMonth(d.getMonth() + i);
+                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                
+                transactions.value.push({
+                  id: 'tx_' + Date.now() + '_' + i,
+                  description: `${txForm.value.description} (${i+1}/${txInstallmentsCount.value})`,
+                  amount: installmentAmount, date: dateStr, type: txForm.value.type, categoryId: txForm.value.categoryId,
+                  subCategory: txForm.value.subCategory, owner: txForm.value.owner, isPaid: txForm.value.isPaid,
+                  cardId: txForm.value.cardId
+                });
+              }
+            } else if (isRecurringCheckbox.value && recurringCount.value > 1) {
+              // Recorrente
+              for (let i = 0; i < recurringCount.value; i++) {
+                let d = new Date(baseDate); d.setMonth(d.getMonth() + i);
+                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                
+                transactions.value.push({
+                  id: 'tx_' + Date.now() + '_' + i, ...txForm.value, amount: totalAmount, date: dateStr, cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null
+                });
+              }
+            } else {
+              // Normal à vista
+              transactions.value.push({
+                id: 'tx_' + Date.now(), ...txForm.value, amount: totalAmount, cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null
+              });
+            }
           }
           
-          saveToStorage(); activeModal.value = null; nextTick(() => renderCharts()); 
+          saveToStorage(); activeModal.value = null; editingTxId.value = null; nextTick(() => renderCharts()); 
         };
 
-        const deleteTransaction = (id) => { transactions.value = transactions.value.filter(t => t.id !== id); saveToStorage(); nextTick(() => renderCharts()); };
+        const deleteTransaction = (id) => { if(confirm("Excluir lançamento?")) { transactions.value = transactions.value.filter(t => t.id !== id); saveToStorage(); nextTick(() => renderCharts()); } };
+
+        // ================= CATEGORIAS =================
+        const openCategoryFromTransaction = () => { previousModal.value = 'transaction'; categoryForm.value = { name: '', type: txForm.value.type === 'income' ? 'income' : 'variable_expense', icon: '📌' }; activeModal.value = 'category'; };
+        const closeCategoryModal = () => { if (previousModal.value === 'transaction') { activeModal.value = 'transaction'; previousModal.value = null; } else { activeModal.value = null; editingCategoryId.value = null; } };
+        const editCategory = (cat) => { editingCategoryId.value = cat.id; categoryForm.value = { ...cat }; activeModal.value = 'category'; };
+        const saveCategory = () => {
+          if (editingCategoryId.value) {
+            const index = categories.value.findIndex(c => c.id === editingCategoryId.value);
+            if (index !== -1) categories.value[index] = { ...categories.value[index], ...categoryForm.value };
+          } else {
+            const newId = 'cat_' + Date.now();
+            categories.value.push({ id: newId, ...categoryForm.value });
+            if (previousModal.value === 'transaction') txForm.value.categoryId = newId;
+          }
+          saveToStorage(); closeCategoryModal();
+        };
+        const deleteCategory = (id) => { if (transactions.value.some(t => t.categoryId === id)) { alert("Categoria em uso. Não pode ser excluída."); return; } if(confirm("Excluir categoria?")) { categories.value = categories.value.filter(c => c.id !== id); saveToStorage(); } };
 
         // ================= FILTROS E MÉTRICAS =================
         const currentMonthTransactions = computed(() => {
@@ -585,7 +657,7 @@
           return currentMonthTransactions.value.filter(item => {
             if (searchQuery.value && !item.description.toLowerCase().includes(searchQuery.value.toLowerCase())) return false;
             return true;
-          });
+          }).sort((a,b) => b.date.localeCompare(a.date));
         });
 
         const monthMetrics = computed(() => {
@@ -601,7 +673,7 @@
         const getCategoryName = (id) => categories.value.find(c => c.id === id)?.name || 'Geral';
         const availableCategories = computed(() => categories.value.filter(c => txForm.value.type === 'income' ? c.type === 'income' : c.type !== 'income'));
 
-        // ================= RELATÓRIO DE FATURA =================
+        // ================= RELATÓRIO DE FATURA (Atualizado com separação Meu / Pais) =================
         const getDateStr = (cardId, year, month, type) => {
           const periodKey = `${cardId}_${year}-${String(month+1).padStart(2,'0')}`;
           const exc = invoiceExceptions.value[periodKey];
@@ -621,8 +693,7 @@
           if (!selectedReportCard.value) return [];
           const cardId = selectedReportCard.value;
           const targetY = currentDate.value.getFullYear(); const targetM = currentDate.value.getMonth();
-          let prevY = targetY; let prevM = targetM - 1;
-          if (prevM < 0) { prevM = 11; prevY--; }
+          let prevY = targetY; let prevM = targetM - 1; if (prevM < 0) { prevM = 11; prevY--; }
           const prevClosingStr = getDateStr(cardId, prevY, prevM, 'closingDate');
           const currClosingStr = getDateStr(cardId, targetY, targetM, 'closingDate');
 
@@ -633,6 +704,10 @@
         });
 
         const invoiceTotal = computed(() => invoiceTransactions.value.reduce((sum, t) => sum + Number(t.amount), 0));
+        // NOVO: Cálculo separado por Responsável
+        const invoiceTotalMeu = computed(() => invoiceTransactions.value.filter(t => t.owner === 'meu' || !t.owner).reduce((sum, t) => sum + Number(t.amount), 0));
+        const invoiceTotalPais = computed(() => invoiceTransactions.value.filter(t => t.owner === 'pais').reduce((sum, t) => sum + Number(t.amount), 0));
+
         const openInvoiceDateModal = () => { invoiceDateForm.value = { ...currentInvoiceDetails.value }; activeModal.value = 'invoice_dates'; };
         const saveInvoiceDates = () => {
           const cardId = selectedReportCard.value; const targetY = currentDate.value.getFullYear(); const targetM = currentDate.value.getMonth();
@@ -641,30 +716,16 @@
           saveToStorage(); activeModal.value = null;
         };
 
-        // Funções padrão dos Modais de Configuração
+        // Funções Contas e Cartões
         const editCard = (card) => { editingCardId.value = card.id; cardForm.value = { ...card }; activeModal.value = 'card'; };
-        const saveCard = () => {
-          if (editingCardId.value) { const index = creditCards.value.findIndex(c => c.id === editingCardId.value); if (index !== -1) creditCards.value[index] = { ...creditCards.value[index], ...cardForm.value }; } 
-          else { creditCards.value.push({ id: 'card_' + Date.now(), ...cardForm.value }); }
-          saveToStorage(); activeModal.value = null; editingCardId.value = null;
-        };
-        const deleteCard = (id) => {
-          if (transactions.value.some(t => t.cardId === id)) { alert("Não é possível excluir este cartão pois possui lançamentos."); return; }
-          if(confirm("Tem certeza que deseja excluir?")) { creditCards.value = creditCards.value.filter(c => c.id !== id); saveToStorage(); }
-        };
+        const saveCard = () => { if (editingCardId.value) { const index = creditCards.value.findIndex(c => c.id === editingCardId.value); if (index !== -1) creditCards.value[index] = { ...creditCards.value[index], ...cardForm.value }; } else { creditCards.value.push({ id: 'card_' + Date.now(), ...cardForm.value }); } saveToStorage(); activeModal.value = null; editingCardId.value = null; };
+        const deleteCard = (id) => { if (transactions.value.some(t => t.cardId === id)) { alert("Não é possível excluir. Possui lançamentos."); return; } if(confirm("Excluir cartão?")) { creditCards.value = creditCards.value.filter(c => c.id !== id); saveToStorage(); } };
 
         const editAccount = (acc) => { editingAccountId.value = acc.id; accountForm.value = { ...acc }; activeModal.value = 'account'; };
-        const saveAccount = () => {
-          if (editingAccountId.value) { const index = accounts.value.findIndex(a => a.id === editingAccountId.value); if (index !== -1) accounts.value[index] = { ...accounts.value[index], ...accountForm.value }; } 
-          else { accounts.value.push({ id: 'acc_' + Date.now(), ...accountForm.value }); }
-          saveToStorage(); activeModal.value = null; editingAccountId.value = null;
-        };
-        const deleteAccount = (id) => {
-          if (transactions.value.some(t => t.accountId === id)) { alert("Não é possível excluir esta conta pois possui movimentações."); return; }
-          if(confirm("Tem certeza que deseja excluir?")) { accounts.value = accounts.value.filter(a => a.id !== id); saveToStorage(); }
-        };
+        const saveAccount = () => { if (editingAccountId.value) { const index = accounts.value.findIndex(a => a.id === editingAccountId.value); if (index !== -1) accounts.value[index] = { ...accounts.value[index], ...accountForm.value }; } else { accounts.value.push({ id: 'acc_' + Date.now(), ...accountForm.value }); } saveToStorage(); activeModal.value = null; editingAccountId.value = null; };
+        const deleteAccount = (id) => { if (transactions.value.some(t => t.accountId === id)) { alert("Não é possível excluir. Possui movimentações."); return; } if(confirm("Excluir conta?")) { accounts.value = accounts.value.filter(a => a.id !== id); saveToStorage(); } };
 
-        // ================= GRÁFICOS (RESTAURADOS) =================
+        // ================= GRÁFICOS =================
         let flowChartInstance = null; let donutChartInstance = null;
         const renderCharts = () => {
           const flowCanvas = document.getElementById('flowHistoryChart');
@@ -676,8 +737,6 @@
           const donutCanvas = document.getElementById('categoryDonutChart');
           if (donutCanvas) {
             if (donutChartInstance) donutChartInstance.destroy();
-            
-            // Agrupar despesas por categoria
             const catTotals = {};
             currentMonthTransactions.value.forEach(t => {
               if (t.type === 'expense') {
@@ -685,11 +744,8 @@
                 catTotals[catName] = (catTotals[catName] || 0) + Number(t.amount);
               }
             });
-            
-            const labels = Object.keys(catTotals);
-            const data = Object.values(catTotals);
+            const labels = Object.keys(catTotals); const data = Object.values(catTotals);
             const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#10b981'];
-
             if(labels.length > 0) {
               donutChartInstance = new Chart(donutCanvas, { type: 'doughnut', data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } });
             }
@@ -710,11 +766,11 @@
           currentTab, tabs, currentMonthFormatted, changeMonth, formatCurrency, formatDateBr, searchQuery,
           accounts, creditCards, categories, transactions, totalAccountsBalance, monthMetrics, filteredTransactions, getCategoryName, availableCategories,
           activeModal, openModal, 
-          txForm, txPaymentMethod, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount, saveTransaction, deleteTransaction,
-          categoryForm, saveCategory, openCategoryFromTransaction, closeCategoryModal,
+          editingTxId, txForm, txPaymentMethod, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount, saveTransaction, deleteTransaction, editTransaction,
+          editingCategoryId, categoryForm, saveCategory, openCategoryFromTransaction, closeCategoryModal, editCategory, deleteCategory,
           editingAccountId, accountForm, editAccount, saveAccount, deleteAccount,
           editingCardId, cardForm, editCard, saveCard, deleteCard,
-          selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal,
+          selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais,
           invoiceDateForm, openInvoiceDateModal, saveInvoiceDates
         };
       }
