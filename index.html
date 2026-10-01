@@ -887,6 +887,12 @@
           return `${d}/${m}/${y}`; 
         };
 
+        // AQUI ESTAVA O ERRO! A variável que formata o mês tinha sido esquecida.
+        const currentMonthFormatted = computed(() => {
+          const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+          return `${months[currentDate.value.getMonth()]} ${currentDate.value.getFullYear()}`;
+        });
+
         const changeMonth = (delta) => { 
           const newDate = new Date(currentDate.value); 
           newDate.setMonth(newDate.getMonth() + delta); 
