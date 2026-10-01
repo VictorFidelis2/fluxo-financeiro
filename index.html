@@ -7,9 +7,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0f172a">
   
-  <link id="dynamic-favicon" rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
-  <link id="dynamic-apple-icon" rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
-  
   <title id="dynamic-title">Fluxo — Controle Financeiro</title>
   
   <!-- Tailwind CSS CDN -->
@@ -52,13 +49,13 @@
   <div id="app">
     
     <!-- ========================================================================= -->
-    <!-- TELA DE LOGIN ADICIONADA AQUI -->
+    <!-- TELA DE LOGIN -->
     <!-- ========================================================================= -->
     <div v-if="!isAuthenticated" class="min-h-screen flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-900 w-full max-w-md p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl">
         <div class="text-center mb-8">
           <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 mb-4 p-2">
-            <img :src="appIcon" class="w-full h-full object-contain filter invert" alt="Logo">
+            <span class="text-3xl">💸</span>
           </div>
           <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Bem-vindo ao Fluxo</h2>
           <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Faça login para acessar</p>
@@ -99,7 +96,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 overflow-hidden p-1.5">
-              <img :src="appIcon" class="w-full h-full object-contain filter invert" alt="Logo">
+              <span class="text-xl">💸</span>
             </div>
             <div class="hidden sm:block">
               <h1 class="text-base font-bold tracking-tight text-slate-900 dark:text-white leading-tight">{{ appName }}</h1>
@@ -215,6 +212,7 @@
                     <td class="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">
                       <div class="flex items-center gap-2">
                         <span>{{ item.description }}</span>
+                        <!-- Parcela no nome -->
                         <span v-if="item.installmentTotal" class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-500 font-semibold">{{ item.installmentCurrent }}/{{ item.installmentTotal }}</span>
                         <span v-if="item.isRecurring" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400 font-semibold" title="Recorrente">↻ Fixo</span>
                       </div>
@@ -293,7 +291,7 @@
                 <button @click="deleteInstallmentGroup(inst.id)" class="text-rose-500 hover:underline">Excluir Todas</button>
               </div>
             </div>
-            
+            <!-- Aviso se não houver parcelas -->
             <div v-if="installmentSummaryList.length === 0" class="col-span-full py-8 text-center text-slate-500 text-sm">
               Não existem compras parceladas ativas.
             </div>
@@ -308,7 +306,7 @@
               <button @click="openModal('account')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Nova Conta</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div v-for="acc in accounts" :key="acc.id" class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3 group relative">
+              <div v-for="acc in accounts" :key="acc.id" class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
                 <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white text-sm overflow-hidden" :style="{ backgroundColor: acc.color || '#3b82f6' }">
                   <img v-if="getBankLogo(acc.name)" :src="getBankLogo(acc.name)" class="w-full h-full object-cover p-1 bg-white" alt="">
                   <span v-else class="text-xl">🏦</span>
@@ -316,11 +314,6 @@
                 <div class="flex-1 min-w-0">
                   <h4 class="font-bold text-sm truncate text-slate-900 dark:text-white">{{ acc.name }}</h4>
                   <p class="text-sm font-bold mt-1" :class="acc.balance >= 0 ? 'text-slate-900 dark:text-white' : 'text-rose-600'">{{ formatCurrency(acc.balance) }}</p>
-                </div>
-                <!-- NOVO: Ações no Hover -->
-                <div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-slate-900 pl-2">
-                  <button @click="editAccount(acc)" class="text-[10px] uppercase font-bold text-blue-500 hover:underline">Editar</button>
-                  <button @click="deleteAccount(acc.id)" class="text-[10px] uppercase font-bold text-rose-500 hover:underline">Excluir</button>
                 </div>
               </div>
             </div>
@@ -332,7 +325,7 @@
               <button @click="openModal('card')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Novo Cartão</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div v-for="card in creditCards" :key="card.id" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between group relative">
+              <div v-for="card in creditCards" :key="card.id" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
                 <div>
                   <div class="flex justify-between items-start">
                     <div class="flex items-center gap-3">
@@ -361,80 +354,31 @@
                     </div>
                   </div>
                 </div>
-                <!-- NOVO: Ações no Hover -->
-                <div class="absolute right-4 top-4 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button @click="editCard(card)" class="text-[10px] uppercase font-bold text-blue-500 hover:underline text-right">Editar</button>
-                  <button @click="deleteCard(card.id)" class="text-[10px] uppercase font-bold text-rose-500 hover:underline text-right">Excluir</button>
-                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- ================= TAB: CATEGORIAS (AGRUPADAS E COM AÇÕES) ================= -->
-        <section v-if="currentTab === 'categories'" class="space-y-8">
+        <!-- ================= TAB: CATEGORIAS ================= -->
+        <section v-if="currentTab === 'categories'" class="space-y-4">
           <div class="flex justify-between items-center mb-2">
             <div><h2 class="text-base font-bold text-slate-900 dark:text-white">Classes & Categorias Financeiras</h2></div>
-            <button @click="openModal('category')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition">+ Nova Categoria</button>
+            <button @click="openModal('category')" class="bg-indigo-600 text-white px-3.5 py-2 rounded-lg text-xs font-semibold">+ Nova Categoria</button>
           </div>
-          
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Receitas -->
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <h3 class="text-sm font-bold text-emerald-600 mb-3">Receitas</h3>
-              <div class="space-y-2">
-                <div v-for="cat in categories.filter(c => c.type === 'income')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between text-sm group relative">
-                  <span>{{ cat.icon }} {{ cat.name }}</span>
-                  <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button>
-                    <button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button>
-                  </div>
-                </div>
-                <div v-if="categories.filter(c => c.type === 'income').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div>
-              </div>
-            </div>
-
-            <!-- Custos Fixos -->
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <h3 class="text-sm font-bold text-indigo-600 mb-3">Custos Fixos</h3>
-              <div class="space-y-2">
-                <div v-for="cat in categories.filter(c => c.type === 'fixed_expense')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between text-sm group relative">
-                  <span>{{ cat.icon }} {{ cat.name }}</span>
-                  <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button>
-                    <button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button>
-                  </div>
-                </div>
-                <div v-if="categories.filter(c => c.type === 'fixed_expense').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div>
-              </div>
-            </div>
-
-            <!-- Custos Variáveis -->
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <h3 class="text-sm font-bold text-amber-600 mb-3">Custos Variáveis</h3>
-              <div class="space-y-2">
-                <div v-for="cat in categories.filter(c => c.type === 'variable_expense')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between text-sm group relative">
-                  <span>{{ cat.icon }} {{ cat.name }}</span>
-                  <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button>
-                    <button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button>
-                  </div>
-                </div>
-                <div v-if="categories.filter(c => c.type === 'variable_expense').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div>
-              </div>
-            </div>
-
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800"><h3 class="text-sm font-bold text-emerald-600 mb-3">Receitas</h3><div class="space-y-2"><div v-for="cat in categories.filter(c => c.type === 'income')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between text-sm"><span>{{ cat.icon }} {{ cat.name }}</span></div></div></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800"><h3 class="text-sm font-bold text-indigo-600 mb-3">Custos Fixos</h3><div class="space-y-2"><div v-for="cat in categories.filter(c => c.type === 'fixed_expense')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between text-sm"><span>{{ cat.icon }} {{ cat.name }}</span></div></div></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800"><h3 class="text-sm font-bold text-amber-600 mb-3">Custos Variáveis</h3><div class="space-y-2"><div v-for="cat in categories.filter(c => c.type === 'variable_expense')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between text-sm"><span>{{ cat.icon }} {{ cat.name }}</span></div></div></div>
           </div>
         </section>
 
-        <!-- ================= TAB: RELATÓRIOS (NOVO BLOCO INTELIGENTE) ================= -->
+        <!-- ================= TAB: RELATÓRIOS (ATUALIZADO E INTELIGENTE) ================= -->
         <section v-if="currentTab === 'reports'" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <div>
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Extrato Detalhado da Fatura</h2>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Relatório Inteligente de Fatura</h2>
                 <p class="text-sm text-slate-500">Mês de Referência: <span class="font-bold text-indigo-500">{{ currentMonthFormatted }}</span></p>
               </div>
               <select v-model="selectedReportCard" class="w-full sm:w-80 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
@@ -477,35 +421,25 @@
                 </button>
               </div>
 
-              <!-- Tabela de Lançamentos da Fatura -->
               <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
                 <table class="w-full text-left text-sm">
                   <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
-                    <tr>
-                      <th class="py-3 px-4">Data da Compra</th>
-                      <th class="py-3 px-4">Descrição</th>
-                      <th class="py-3 px-4">Responsável</th>
-                      <th class="py-3 px-4 text-right">Valor (R$)</th>
-                    </tr>
+                    <tr><th class="py-3 px-4">Data</th><th class="py-3 px-4">Descrição</th><th class="py-3 px-4">Responsável</th><th class="py-3 px-4 text-right">Valor (R$)</th></tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     <tr v-for="item in invoiceTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40">
                       <td class="py-3 px-4 text-xs text-slate-500">{{ formatDate(item.date) }}</td>
                       <td class="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">
                         {{ item.description }}
-                        <span v-if="item.installmentTotal" class="text-xs text-indigo-500 ml-1 font-bold">
-                          ({{ item.installmentCurrent }}/{{ item.installmentTotal }})
-                        </span>
+                        <span v-if="item.installmentTotal" class="text-xs text-indigo-500 ml-1 font-bold">({{ item.installmentCurrent }}/{{ item.installmentTotal }})</span>
                       </td>
-                      <td class="py-3 px-4 text-xs font-medium">
+                      <td class="py-3 px-4 text-xs">
                         <span v-if="item.owner === 'pais'" class="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 font-bold border border-purple-500/20">👤 Pais</span>
                         <span v-else class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 font-bold border border-indigo-500/20">Meu</span>
                       </td>
                       <td class="py-3 px-4 text-right font-bold text-rose-600">{{ formatCurrency(item.amount) }}</td>
                     </tr>
-                    <tr v-if="invoiceTransactions.length === 0">
-                      <td colspan="4" class="py-6 text-center text-slate-500">Nenhum lançamento nesta fatura.</td>
-                    </tr>
+                    <tr v-if="invoiceTransactions.length === 0"><td colspan="4" class="py-6 text-center text-slate-500">Nenhum lançamento nesta fatura.</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -515,176 +449,87 @@
 
       </main>
 
-      <!-- ================= MODAIS DE CADASTRO E EDIÇÃO ================= -->
-      
-      <div v-if="activeModal === 'transaction'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 overflow-y-auto max-h-[90vh]">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ editingTransactionId ? 'Editar Movimentação' : 'Nova Movimentação' }}</h3>
-            <button @click="activeModal = null" class="text-slate-400 hover:text-slate-600">&times;</button>
-          </div>
-
-          <div class="flex rounded-lg bg-slate-100 dark:bg-slate-800 p-1 mb-4 text-xs font-semibold">
-            <button @click="txForm.type = 'expense'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'expense' ? 'bg-white dark:bg-slate-700 text-rose-600 shadow' : 'text-slate-500']">Despesa</button>
-            <button @click="txForm.type = 'income'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'income' ? 'bg-white dark:bg-slate-700 text-emerald-600 shadow' : 'text-slate-500']">Receita</button>
-            <button @click="txForm.type = 'transfer'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'transfer' ? 'bg-white dark:bg-slate-700 text-blue-600 shadow' : 'text-slate-500']">Transferência</button>
-          </div>
-
-          <form @submit.prevent="saveTransaction" class="space-y-3.5 text-xs">
-            <div>
-              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Descrição</label>
-              <input v-model="txForm.description" required type="text" list="suggestions-list" placeholder="Ex: MEI, Steam, Supermercado..." 
-                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm text-slate-900 dark:text-slate-100">
-              <datalist id="suggestions-list"><option v-for="desc in uniqueDescriptions" :key="desc" :value="desc"></option></datalist>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Valor (R$)</label><input v-model.number="txForm.amount" required step="0.01" min="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
-              <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Data</label><input v-model="txForm.date" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
-            </div>
-
-            <div v-if="txForm.type !== 'transfer'" class="grid grid-cols-2 gap-3">
-              <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Categoria</label><select v-model="txForm.categoryId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="cat in availableCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option></select></div>
-              <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Subgrupo</label><input v-model="txForm.subCategory" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
-            </div>
-
-            <div v-if="txForm.type !== 'transfer'">
-              <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Responsável</label>
-              <select v-model="txForm.owner" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
-                <option value="meu">Meu (Próprio)</option>
-                <option value="pais">Meus Pais</option>
-              </select>
-            </div>
-
-            <div v-if="txForm.type === 'expense'" class="grid grid-cols-2 gap-3">
-              <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Método de Saída</label><select v-model="txPaymentMethod" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option value="account">Conta Bancária</option><option value="card">Cartão de Crédito</option></select></div>
-              <div v-if="txPaymentMethod === 'account'"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Conta Selecionada</label><select v-model="txForm.accountId" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option></select></div>
-              <div v-if="txPaymentMethod === 'card'"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Cartão Selecionado</label><select v-model="txForm.cardId" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="c in creditCards" :key="c.id" :value="c.id">{{ c.name }}</option></select></div>
-            </div>
-
-            <!-- MENSAGEM DE DICA -->
-            <p v-if="txForm.type === 'expense' && txPaymentMethod === 'account' && !editingTransactionId" class="text-[11px] text-slate-500 italic">Mude o Método de Pagamento para "Cartão de Crédito" para liberar o Parcelamento.</p>
-
-            <div v-if="txForm.type === 'expense' && txPaymentMethod === 'card' && !editingTransactionId" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-200 dark:border-slate-700 mt-3">
-              <div class="flex items-center justify-between"><span class="font-semibold text-slate-700 dark:text-slate-300">Compra Parcelada?</span><input type="checkbox" v-model="isInstallmentCheckbox" class="rounded text-indigo-600 focus:ring-indigo-500"></div>
-              <div v-if="isInstallmentCheckbox" class="pt-2">
-                <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Número de Parcelas</label>
-                <input v-model.number="txInstallmentsCount" min="2" max="72" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm">
-              </div>
-            </div>
-
-            <div v-if="txForm.type !== 'transfer' && !editingTransactionId && !isInstallmentCheckbox" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-200 dark:border-slate-700 mt-3">
-              <div class="flex items-center justify-between"><span class="font-semibold text-slate-700 dark:text-slate-300">Repetir Mensalmente (Fixo)?</span><input type="checkbox" v-model="isRecurringCheckbox" class="rounded text-indigo-600 focus:ring-indigo-500"></div>
-              <div v-if="isRecurringCheckbox" class="pt-2"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Por quantos meses?</label><input v-model.number="recurringCount" min="2" max="120" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm"></div>
-            </div>
-
-            <div v-if="txForm.type === 'income'"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Conta Destino</label><select v-model="txForm.accountId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option></select></div>
-            
-            <div v-if="txForm.type === 'transfer'" class="grid grid-cols-2 gap-3">
-              <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Origem</label><select v-model="txForm.accountId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option></select></div>
-              <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Destino</label><select v-model="txForm.destinationAccountId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option></select></div>
-            </div>
-
-            <div class="flex items-center justify-between pt-1"><label class="font-semibold text-slate-700 dark:text-slate-300">Já está pago/recebido?</label><input type="checkbox" v-model="txIsPaid" class="rounded text-indigo-600 focus:ring-indigo-500"></div>
-
-            <div class="flex justify-end gap-2 pt-4">
-              <button @click="activeModal = null" type="button" class="px-4 py-2 rounded-lg text-slate-600">Cancelar</button>
-              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg font-semibold shadow-md">Salvar</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Outros Modais (Categoria, Conta, Cartão, Datas) -->
-      <div v-if="activeModal === 'category'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
-          <form @submit.prevent="saveCategory" class="space-y-4 text-sm">
-            <h3 class="text-lg font-bold">{{ editingCategoryId ? 'Editar Categoria' : 'Nova Categoria' }}</h3>
-            <div><label class="block font-semibold mb-1">Nome</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-            <div>
-              <label class="block font-semibold mb-1">Tipo</label>
-              <select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
-                <option value="income">Receita</option>
-                <option value="fixed_expense">Custo Fixo</option>
-                <option value="variable_expense">Custo Variável</option>
-              </select>
-            </div>
-            <div><label class="block font-semibold mb-1">Ícone</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-            <div class="flex justify-end gap-2 pt-2">
-              <button @click="activeModal = null; editingCategoryId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
-              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
-          <form @submit.prevent="saveAccount" class="space-y-4 text-sm">
-            <h3 class="text-lg font-bold">{{ editingAccountId ? 'Editar Conta' : 'Nova Conta' }}</h3>
-            <div><label class="block font-semibold mb-1">Nome</label><input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block font-semibold mb-1">Tipo</label>
-                <select v-model="accountForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
-                  <option value="checking">Corrente</option>
-                  <option value="savings">Poupança</option>
-                </select>
-              </div>
-              <div><label class="block font-semibold mb-1">Cor</label><input v-model="accountForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div>
-            </div>
-            <div><label class="block font-semibold mb-1">Saldo Inicial</label><input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-            <div class="flex justify-end gap-2 pt-2">
-              <button @click="activeModal = null; editingAccountId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
-              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
-          <form @submit.prevent="saveCard" class="space-y-4 text-sm">
-            <h3 class="text-lg font-bold">{{ editingCardId ? 'Editar Cartão' : 'Novo Cartão' }}</h3>
-            <div class="grid grid-cols-2 gap-3">
-              <div><label class="block font-semibold mb-1">Apelido</label><input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-              <div><label class="block font-semibold mb-1">Banco</label><input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div><label class="block font-semibold mb-1">Fechamento</label><input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-              <div><label class="block font-semibold mb-1">Vencimento</label><input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-            </div>
-            <div><label class="block font-semibold mb-1">Cor</label><input v-model="cardForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div>
-            <div class="flex justify-end gap-2 pt-2">
-              <button @click="activeModal = null; editingCardId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
-              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div v-if="activeModal === 'invoice_dates'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
-          <form @submit.prevent="saveInvoiceDates" class="space-y-4 text-sm">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Ajustar Datas Específicas</h3>
-            <p class="text-xs text-slate-500 mb-4">Estas datas valerão apenas para a fatura de <b>{{ currentMonthFormatted }}</b> deste cartão.</p>
-            <div><label class="block font-semibold mb-1">Data Real de Fechamento</label><input v-model="invoiceDateForm.closingDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-            <div><label class="block font-semibold mb-1">Data Real de Vencimento</label><input v-model="invoiceDateForm.dueDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
-            <div class="flex justify-end gap-2 pt-4">
-              <button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
-              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar Exceção</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
     </div>
+
+    <!-- ================= MODAIS DE CADASTRO ================= -->
+    <div v-if="activeModal === 'transaction'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+      <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ editingTransactionId ? 'Editar Movimentação' : 'Nova Movimentação' }}</h3>
+          <button @click="activeModal = null" class="text-slate-400 hover:text-slate-600">&times;</button>
+        </div>
+
+        <div class="flex rounded-lg bg-slate-100 dark:bg-slate-800 p-1 mb-4 text-xs font-semibold">
+          <button @click="txForm.type = 'expense'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'expense' ? 'bg-white dark:bg-slate-700 text-rose-600 shadow' : 'text-slate-500']">Despesa</button>
+          <button @click="txForm.type = 'income'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'income' ? 'bg-white dark:bg-slate-700 text-emerald-600 shadow' : 'text-slate-500']">Receita</button>
+          <button @click="txForm.type = 'transfer'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'transfer' ? 'bg-white dark:bg-slate-700 text-blue-600 shadow' : 'text-slate-500']">Transferência</button>
+        </div>
+
+        <form @submit.prevent="saveTransaction" class="space-y-3.5 text-xs">
+          <div>
+            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Descrição</label>
+            <input v-model="txForm.description" required type="text" list="suggestions-list" placeholder="Ex: MEI, Steam, Supermercado..." 
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm text-slate-900 dark:text-slate-100">
+            <datalist id="suggestions-list"><option v-for="desc in uniqueDescriptions" :key="desc" :value="desc"></option></datalist>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Valor (R$)</label><input v-model.number="txForm.amount" required step="0.01" min="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
+            <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Data</label><input v-model="txForm.date" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
+          </div>
+
+          <div v-if="txForm.type !== 'transfer'" class="grid grid-cols-2 gap-3">
+            <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Categoria</label><select v-model="txForm.categoryId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="cat in availableCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option></select></div>
+            <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Subgrupo</label><input v-model="txForm.subCategory" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
+          </div>
+
+          <div v-if="txForm.type !== 'transfer'"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Responsável</label><select v-model="txForm.owner" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option value="meu">Meu (Próprio)</option><option value="pais">Meus Pais</option></select></div>
+
+          <div v-if="txForm.type === 'expense'" class="grid grid-cols-2 gap-3">
+            <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Método de Saída</label><select v-model="txPaymentMethod" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option value="account">Conta Bancária</option><option value="card">Cartão de Crédito</option></select></div>
+            <div v-if="txPaymentMethod === 'account'"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Conta Selecionada</label><select v-model="txForm.accountId" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option></select></div>
+            <div v-if="txPaymentMethod === 'card'"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Cartão Selecionado</label><select v-model="txForm.cardId" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="c in creditCards" :key="c.id" :value="c.id">{{ c.name }}</option></select></div>
+          </div>
+
+          <div v-if="txForm.type === 'expense' && txPaymentMethod === 'card' && !editingTransactionId" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-200 dark:border-slate-700 mt-3">
+            <div class="flex items-center justify-between"><span class="font-semibold text-slate-700 dark:text-slate-300">Compra Parcelada?</span><input type="checkbox" v-model="isInstallmentCheckbox" class="rounded text-indigo-600 focus:ring-indigo-500"></div>
+            <div v-if="isInstallmentCheckbox" class="pt-2"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Número de Parcelas</label><input v-model.number="txInstallmentsCount" min="2" max="72" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm"></div>
+          </div>
+
+          <div v-if="txForm.type !== 'transfer' && !editingTransactionId && !isInstallmentCheckbox" class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-200 dark:border-slate-700 mt-3">
+            <div class="flex items-center justify-between"><span class="font-semibold text-slate-700 dark:text-slate-300">Repetir Mensalmente (Fixo)?</span><input type="checkbox" v-model="isRecurringCheckbox" class="rounded text-indigo-600 focus:ring-indigo-500"></div>
+            <div v-if="isRecurringCheckbox" class="pt-2"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Por quantos meses?</label><input v-model.number="recurringCount" min="2" max="120" type="number" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm"></div>
+          </div>
+
+          <div v-if="txForm.type === 'income'"><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Conta Destino</label><select v-model="txForm.accountId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option></select></div>
+          <div v-if="txForm.type === 'transfer'" class="grid grid-cols-2 gap-3">
+            <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Origem</label><select v-model="txForm.accountId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option></select></div>
+            <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Destino</label><select v-model="txForm.destinationAccountId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="acc in accounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option></select></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1"><label class="font-semibold text-slate-700 dark:text-slate-300">Já está pago/recebido?</label><input type="checkbox" v-model="txIsPaid" class="rounded text-indigo-600 focus:ring-indigo-500"></div>
+
+          <div class="flex justify-end gap-2 pt-4">
+            <button @click="activeModal = null" type="button" class="px-4 py-2 rounded-lg text-slate-600">Cancelar</button>
+            <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg font-semibold shadow-md">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modais Categoria, Conta, Cartão, Exceção Datas -->
+    <div v-if="activeModal === 'category'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCategory" class="space-y-4 text-sm"><div><label class="block font-semibold mb-1">Nome</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Tipo</label><select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="income">Receita</option><option value="fixed_expense">Custo Fixo</option><option value="variable_expense">Custo Variável</option></select></div><div><label class="block font-semibold mb-1">Ícone</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-2"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+    <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveAccount" class="space-y-4 text-sm"><div><label class="block font-semibold mb-1">Nome</label><input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Tipo</label><select v-model="accountForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="checking">Corrente</option><option value="savings">Poupança</option></select></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="accountForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div></div><div><label class="block font-semibold mb-1">Saldo Inicial</label><input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-2"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+    <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCard" class="space-y-4 text-sm"><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Apelido</label><input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Banco</label><input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Fechamento</label><input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Vencimento</label><input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="cardForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div><div class="flex justify-end gap-2 pt-2"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+    
+    <div v-if="activeModal === 'invoice_dates'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveInvoiceDates" class="space-y-4 text-sm"><h3 class="text-lg font-bold text-slate-900 dark:text-white">Ajustar Datas Específicas</h3><p class="text-xs text-slate-500 mb-4">Apenas para a fatura de {{ currentMonthFormatted }}.</p><div><label class="block font-semibold mb-1">Fechamento</label><input v-model="invoiceDateForm.closingDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Vencimento</label><input v-model="invoiceDateForm.dueDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar Exceção</button></div></form></div></div>
+
   </div>
 
   <script>
     // AQUI INICIA A INTEGRAÇÃO COM O FIREBASE ==========================
     const firebaseConfig = {
-      apiKey: "AIzaSyC7aPuuv3OjoeaoRkdn3o7hyyjYnZBolHU",
+      apiKey: "AIzaSyC7aPuuv3OjoOeaRkdn3o7hyyJYnZBolHU",
       authDomain: "fluxo-financeiro-1ee39.firebaseapp.com",
       databaseURL: "https://fluxo-financeiro-1ee39-default-rtdb.firebaseio.com",
       projectId: "fluxo-financeiro-1ee39",
@@ -693,6 +538,7 @@
       appId: "1:885053911413:web:e957c85d25dbcf4bf2233c"
     };
 
+    // Inicializa o Firebase e a Base de Dados
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
@@ -702,88 +548,16 @@
 
     createApp({
       setup() {
-        // ================= ESTADO GLOBAL E AUTENTICAÇÃO =================
         const appName = ref('Fluxo');
         const appIcon = ref('https://cdn-icons-png.flaticon.com/512/5501/5501375.png');
 
+        // ================= ESTADO DE AUTENTICAÇÃO =================
         const isAuthenticated = ref(false);
         const isLoggingIn = ref(false);
         const loginEmail = ref('');
         const loginPassword = ref('');
         const loginError = ref('');
 
-        const currentTab = ref('dashboard');
-        const currentDate = ref(new Date()); 
-        const activeModal = ref(null);
-
-        // ================= LISTA DE DADOS BASE =================
-        const accounts = ref([]);
-        const creditCards = ref([]);
-        const categories = ref([]);
-        const transactions = ref([]);
-        const installments = ref([]);
-        const invoiceExceptions = ref({}); 
-
-        // ================= FILTROS =================
-        const searchQuery = ref('');
-        const filterType = ref('all');
-        const filterCategory = ref('all');
-        const filterSubCategory = ref('all');
-        const filterOwner = ref('all');
-        const filterStatus = ref('all');
-        const filterInstallment = ref('all');
-
-        // ================= FORMULÁRIOS =================
-        const txPaymentMethod = ref('account');
-        const isInstallmentCheckbox = ref(false);
-        const txInstallmentsCount = ref(12);
-        const isRecurringCheckbox = ref(false);
-        const recurringCount = ref(12);
-        const editingTransactionId = ref(null);
-        const txIsPaid = ref(true);
-        
-        const txForm = ref({ description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: '', subCategory: '', owner: 'meu', accountId: '', cardId: '', destinationAccountId: '' });
-        
-        const editingCategoryId = ref(null);
-        const categoryForm = ref({ name: '', type: 'variable_expense', icon: '' });
-        
-        const editingAccountId = ref(null);
-        const accountForm = ref({ name: '', type: 'checking', balance: null, color: '#3b82f6' }); 
-        
-        const editingCardId = ref(null);
-        const cardForm = ref({ name: '', bank: '', closingDay: null, dueDay: null, color: '#8b5cf6' }); 
-
-        const selectedReportCard = ref('');
-        const invoiceDateForm = ref({ closingDate: '', dueDate: '' });
-
-        const tabs = [
-          { id: 'dashboard', name: 'Dashboard' },
-          { id: 'transactions', name: 'Lançamentos' },
-          { id: 'installments', name: 'Parcelas' },
-          { id: 'categories', name: 'Categorias' },
-          { id: 'accounts', name: 'Contas & Cartões' },
-          { id: 'reports', name: 'Relatórios' }
-        ];
-
-        // ================= LÓGICA DE AUTENTICAÇÃO =================
-        const handleLogin = async () => {
-          isLoggingIn.value = true; loginError.value = '';
-          try { await auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value); } 
-          catch (error) { loginError.value = 'As credenciais estão incorretas. Tente novamente.'; isLoggingIn.value = false; }
-        };
-
-        const handleGoogleLogin = async () => {
-          isLoggingIn.value = true; loginError.value = '';
-          const provider = new firebase.auth.GoogleAuthProvider();
-          try { await auth.signInWithPopup(provider); } 
-          catch (error) { console.error("Erro Google:", error); loginError.value = "Erro na janela do Google. Tente novamente."; isLoggingIn.value = false; }
-        };
-
-        const handleLogout = async () => {
-          try { await auth.signOut(); accounts.value = []; categories.value = []; transactions.value = []; installments.value = []; invoiceExceptions.value = {}; } catch (error) {}
-        };
-
-        // ================= FUNÇÕES DE APOIO (UI/MÉTODOS) =================
         const getBankLogo = (name) => {
           if (!name) return null;
           const text = name.toLowerCase();
@@ -798,6 +572,75 @@
           if (text.includes('xp')) return 'https://logospng.org/download/xp-investimentos/logo-xp-investimentos-icon-2048.png';
           return null;
         };
+
+        const isDark = ref(true);
+        const currentTab = ref('dashboard');
+        const currentDate = ref(new Date()); 
+        const activeModal = ref(null);
+
+        const searchQuery = ref('');
+        const filterType = ref('all');
+        const filterCategory = ref('all');
+        const filterSubCategory = ref('all');
+        const filterOwner = ref('all');
+        const filterStatus = ref('all');
+        const filterInstallment = ref('all');
+
+        const txPaymentMethod = ref('account');
+        const isInstallmentCheckbox = ref(false);
+        const txInstallmentsCount = ref(12);
+        const isRecurringCheckbox = ref(false);
+        const recurringCount = ref(12);
+        const editingTransactionId = ref(null);
+        const txIsPaid = ref(true);
+        
+        const txForm = ref({ description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: '', subCategory: '', owner: 'meu', accountId: '', cardId: '', destinationAccountId: '' });
+        const categoryForm = ref({ name: '', type: 'variable_expense', icon: '' });
+        const accountForm = ref({ name: '', type: 'checking', balance: null, color: '#3b82f6' }); 
+        const cardForm = ref({ name: '', bank: '', closingDay: null, dueDay: null, color: '#8b5cf6' }); 
+
+        const selectedReportCard = ref('');
+        const invoiceDateForm = ref({ closingDate: '', dueDate: '' });
+
+        const tabs = [
+          { id: 'dashboard', name: 'Dashboard' },
+          { id: 'transactions', name: 'Lançamentos' },
+          { id: 'installments', name: 'Parcelamentos' },
+          { id: 'accounts', name: 'Contas & Cartões' },
+          { id: 'categories', name: 'Classes / Categorias' },
+          { id: 'reports', name: 'Relatórios' }
+        ];
+
+        const accounts = ref([]);
+        const creditCards = ref([]);
+        const categories = ref([]);
+        const transactions = ref([]);
+        const installments = ref([]);
+        const invoiceExceptions = ref({}); 
+
+        // ================= FUNÇÕES DE AUTENTICAÇÃO =================
+        const handleLogin = async () => {
+          isLoggingIn.value = true; loginError.value = '';
+          try { await auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value); } 
+          catch (error) { loginError.value = 'As credenciais estão incorretas. Tente novamente.'; isLoggingIn.value = false; }
+        };
+
+        const handleGoogleLogin = async () => {
+          isLoggingIn.value = true; loginError.value = '';
+          const provider = new firebase.auth.GoogleAuthProvider();
+          try { await auth.signInWithPopup(provider); } 
+          catch (error) { console.error("Erro Google:", error); loginError.value = "Erro na janela do Google."; isLoggingIn.value = false; }
+        };
+
+        const handleLogout = async () => {
+          try { await auth.signOut(); accounts.value = []; categories.value = []; transactions.value = []; installments.value = []; invoiceExceptions.value = {}; } catch (error) {}
+        };
+
+        const uniqueDescriptions = computed(() => {
+          const descriptionsSet = new Set();
+          transactions.value.forEach(t => { if (t.description && t.description.trim() !== '') descriptionsSet.add(t.description.trim()); });
+          return Array.from(descriptionsSet).sort();
+        });
 
         const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
         const formatDate = (dateStr) => { if (!dateStr) return ''; const [y, m, d] = dateStr.split('-'); return `${d}/${m}/${y}`; };
@@ -814,19 +657,14 @@
           nextTick(() => renderCharts());
         };
 
-        const getCategoryName = (id) => categories.value.find(c => c.id === id)?.name || 'Geral';
-        const getAccountName = (id) => accounts.value.find(a => a.id === id)?.name || 'Conta';
-        const getCardName = (id) => creditCards.value.find(c => c.id === id)?.name || 'Cartão';
-        const getCardBank = (id) => creditCards.value.find(c => c.id === id)?.bank || '';
-        const getCardSpent = (cardId) => currentMonthTransactions.value.filter(t => t.cardId === cardId && t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
-        const getCardSpentByOwner = (cardId, ownerType) => currentMonthTransactions.value.filter(t => t.cardId === cardId && t.type === 'expense' && (t.owner || 'meu') === ownerType).reduce((sum, t) => sum + Number(t.amount), 0);
-        const translateStatus = (st) => ({ paid: 'Pago', received: 'Recebido', pending: 'Pendente' }[st] || st);
-        
-        const availableCategories = computed(() => categories.value.filter(c => txForm.value.type === 'income' ? c.type === 'income' : c.type !== 'income'));
-        const availableSubCategories = computed(() => { const subs = new Set(); transactions.value.forEach(t => { if (t.subCategory) subs.add(t.subCategory.trim()); }); return Array.from(subs).sort(); });
-        const uniqueDescriptions = computed(() => { const descriptionsSet = new Set(); transactions.value.forEach(t => { if (t.description && t.description.trim() !== '') descriptionsSet.add(t.description.trim()); }); return Array.from(descriptionsSet).sort(); });
+        const toggleTheme = () => {
+          isDark.value = !isDark.value;
+          if (isDark.value) document.documentElement.classList.add('dark');
+          else document.documentElement.classList.remove('dark');
+          nextTick(() => renderCharts());
+        };
 
-        // ================= FIREBASE SYNC =================
+        // Escuta os dados em tempo real do Firebase
         const initializeStorage = () => {
           document.getElementById('dynamic-title').innerText = appName.value + ' — Controle Pessoal';
           const dataRef = db.ref('fluxoData');
@@ -842,18 +680,21 @@
               invoiceExceptions.value = data.invoiceExceptions || {};
             }
             nextTick(() => renderCharts());
+          }, (error) => {
+            console.error("Erro ao carregar dados do Firebase:", error);
           });
         };
 
+        // Guarda os dados no Firebase
         const saveToStorage = async () => {
-          const payload = { 
-            accounts: accounts.value, creditCards: creditCards.value, categories: categories.value, 
-            transactions: transactions.value, installments: installments.value, invoiceExceptions: invoiceExceptions.value 
-          };
-          try { await db.ref('fluxoData').set(payload); } catch (e) { console.error("Erro a guardar:", e); }
+          const payload = { accounts: accounts.value, creditCards: creditCards.value, categories: categories.value, transactions: transactions.value, installments: installments.value, invoiceExceptions: invoiceExceptions.value };
+          try { 
+            await db.ref('fluxoData').set(payload); 
+          } catch (e) { 
+            console.error("Erro a guardar:", e); 
+          }
         };
 
-        // ================= LÓGICA DE DADOS PRINCIPAL =================
         const totalAccountsBalance = computed(() => accounts.value.reduce((acc, curr) => acc + Number(curr.balance), 0));
         
         const currentMonthTransactions = computed(() => {
@@ -868,8 +709,16 @@
             else if (t.type === 'expense') { if (t.status === 'paid') expenseRealized += Number(t.amount); else expensePending += Number(t.amount); }
           });
           const totalIncome = incomeRealized + incomePending; const totalExpense = expenseRealized + expensePending;
-          const netSavings = totalIncome - totalExpense; 
-          return { incomeRealized, incomePending, expenseRealized, expensePending, totalIncome, totalExpense, netSavings };
+          const netSavings = totalIncome - totalExpense; const savingsRate = totalIncome > 0 ? (netSavings / totalIncome) * 100 : 0;
+          return { incomeRealized, incomePending, expenseRealized, expensePending, totalIncome, totalExpense, netSavings, savingsRate };
+        });
+
+        const projectedMonthEndBalance = computed(() => totalAccountsBalance.value + monthMetrics.value.incomePending - monthMetrics.value.expensePending);
+        const totalFutureInstallmentsAmount = computed(() => transactions.value.filter(t => t.installmentId && (t.status === 'pending' || t.status === 'overdue')).reduce((acc, curr) => acc + Number(curr.amount), 0));
+        
+        const availableSubCategories = computed(() => {
+          const subs = new Set(); transactions.value.forEach(t => { if (t.subCategory) subs.add(t.subCategory.trim()); });
+          return Array.from(subs).sort();
         });
 
         const filteredTransactions = computed(() => {
@@ -894,7 +743,18 @@
           });
         });
 
-        // ================= LÓGICA DE RELATÓRIO DE FATURA =================
+        const getCategoryName = (id) => categories.value.find(c => c.id === id)?.name || 'Geral';
+        const getAccountName = (id) => accounts.value.find(a => a.id === id)?.name || 'Conta';
+        const getCardName = (id) => creditCards.value.find(c => c.id === id)?.name || 'Cartão';
+        const getCardBank = (id) => creditCards.value.find(c => c.id === id)?.bank || '';
+        const getCardSpent = (cardId) => currentMonthTransactions.value.filter(t => t.cardId === cardId && t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+        const getCardSpentByOwner = (cardId, ownerType) => currentMonthTransactions.value.filter(t => t.cardId === cardId && t.type === 'expense' && (t.owner || 'meu') === ownerType).reduce((sum, t) => sum + Number(t.amount), 0);
+        const getCategoryMonthlySpent = (catId) => currentMonthTransactions.value.filter(t => t.categoryId === catId).reduce((sum, t) => sum + Number(t.amount), 0);
+        const translateStatus = (st) => ({ paid: 'Pago', received: 'Recebido', pending: 'Pendente' }[st] || st);
+        
+        const availableCategories = computed(() => categories.value.filter(c => txForm.value.type === 'income' ? c.type === 'income' : c.type !== 'income'));
+
+        // ================= LÓGICA DE RELATÓRIO DE FATURAS =================
         const getDateStr = (cardId, year, month, type) => {
           const periodKey = `${cardId}_${year}-${String(month+1).padStart(2,'0')}`;
           const exc = invoiceExceptions.value[periodKey];
@@ -936,7 +796,7 @@
           saveToStorage(); activeModal.value = null;
         };
 
-        // ================= CRUD (AÇÕES GERAIS) =================
+
         const openModal = (type) => {
           activeModal.value = type;
           if (type === 'transaction') {
@@ -948,7 +808,7 @@
 
         const editTransaction = (item) => {
           editingTransactionId.value = item.id;
-          txForm.value = { description: item.description, amount: item.amount, date: item.date, type: item.type, categoryId: item.categoryId, subCategory: item.subCategory || '', owner: item.owner || 'meu', accountId: item.accountId || '', cardId: item.cardId || '', destinationAccountId: item.destinationAccountId || '' };
+          txForm.value = { description: item.description, amount: item.amount, date: item.date, type: item.type, categoryId: item.categoryId, subCategory: item.subCategory || '', owner: item.owner || 'meu', accountId: item.accountId || '', cardId: item.cardId || '' };
           if (item.cardId) { txPaymentMethod.value = 'card'; } else { txPaymentMethod.value = 'account'; }
           txIsPaid.value = (item.status === 'paid' || item.status === 'received');
           activeModal.value = 'transaction';
@@ -962,35 +822,24 @@
             const index = transactions.value.findIndex(t => t.id === editingTransactionId.value);
             if (index !== -1) {
               const oldTx = transactions.value[index];
-              // Reverte saldos antigos
               if (oldTx.status === 'received' && oldTx.type === 'income') { const acc = accounts.value.find(a => a.id === oldTx.accountId); if (acc) acc.balance -= oldTx.amount; } 
               else if (oldTx.status === 'paid' && oldTx.type === 'expense' && oldTx.accountId) { const acc = accounts.value.find(a => a.id === oldTx.accountId); if (acc) acc.balance += oldTx.amount; } 
               else if (oldTx.type === 'transfer') { const orig = accounts.value.find(a => a.id === oldTx.accountId); const dest = accounts.value.find(a => a.id === oldTx.destinationAccountId); if (orig) orig.balance += oldTx.amount; if (dest) dest.balance -= oldTx.amount; }
 
-              // Atualiza o objeto
               transactions.value[index] = { ...oldTx, description: form.description, amount: Number(form.amount), date: form.date, type: form.type, categoryId: form.categoryId, subCategory: form.subCategory, owner: form.type !== 'transfer' ? form.owner : 'meu', accountId: (txPaymentMethod.value === 'account' || form.type === 'income' || form.type === 'transfer') ? form.accountId : null, cardId: (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null, destinationAccountId: form.type === 'transfer' ? form.destinationAccountId : null, status: status };
 
-              // Aplica saldos novos
               if (status === 'received' && form.type === 'income') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance += Number(form.amount); } 
               else if (status === 'paid' && form.type === 'expense' && txPaymentMethod.value === 'account') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance -= Number(form.amount); } 
               else if (form.type === 'transfer') { const orig = accounts.value.find(a => a.id === form.accountId); const dest = accounts.value.find(a => a.id === form.destinationAccountId); if (orig) orig.balance -= Number(form.amount); if (dest) dest.balance += Number(form.amount); }
             }
           } else {
-            // Nova Criação
             if (form.type === 'expense' && txPaymentMethod.value === 'card' && isInstallmentCheckbox.value && txInstallmentsCount.value > 1) {
-              const installmentId = 'inst_' + Date.now(); 
-              const totalCount = Number(txInstallmentsCount.value); 
-              const installmentValue = Number((form.amount / totalCount).toFixed(2));
-              
+              const installmentId = 'inst_' + Date.now(); const totalCount = Number(txInstallmentsCount.value); const installmentValue = Number((form.amount / totalCount).toFixed(2));
               installments.value.push({ id: installmentId, description: form.description, totalAmount: Number(form.amount), installmentsCount: totalCount, cardId: form.cardId, categoryId: form.categoryId, firstDueDate: form.date });
 
               for (let i = 1; i <= totalCount; i++) {
                 const dt = new Date(form.date + 'T00:00:00'); dt.setMonth(dt.getMonth() + (i - 1)); const dtStr = dt.toISOString().split('T')[0];
-                transactions.value.push({ 
-                  id: `tx_${Date.now()}_${i}`, description: form.description, amount: installmentValue, date: dtStr, dueDate: dtStr, 
-                  type: 'expense', categoryId: form.categoryId, subCategory: form.subCategory, owner: form.owner, cardId: form.cardId, 
-                  status: (i === 1 && txIsPaid.value) ? 'paid' : 'pending', installmentId: installmentId, installmentCurrent: i, installmentTotal: totalCount 
-                });
+                transactions.value.push({ id: `tx_${Date.now()}_${i}`, description: form.description, amount: installmentValue, date: dtStr, dueDate: dtStr, type: 'expense', categoryId: form.categoryId, subCategory: form.subCategory, owner: form.owner, cardId: form.cardId, status: (i === 1 && txIsPaid.value) ? 'paid' : 'pending', installmentId: installmentId, installmentCurrent: i, installmentTotal: totalCount });
               }
             } else if (form.type === 'transfer') {
               transactions.value.push({ id: 'tx_' + Date.now(), description: form.description || 'Transferência', amount: Number(form.amount), date: form.date, type: 'transfer', accountId: form.accountId, destinationAccountId: form.destinationAccountId, status: 'paid' });
@@ -1001,14 +850,7 @@
               for (let i = 0; i < totalCount; i++) {
                 const dt = new Date(form.date + 'T00:00:00'); dt.setMonth(dt.getMonth() + i); const dtStr = dt.toISOString().split('T')[0];
                 const currentStatus = (i === 0 && txIsPaid.value) ? (form.type === 'income' ? 'received' : 'paid') : 'pending';
-                
-                transactions.value.push({ 
-                  id: `tx_${Date.now()}_${i}`, description: form.description, amount: Number(form.amount), date: dtStr, dueDate: dtStr, 
-                  type: form.type, categoryId: form.categoryId, subCategory: form.subCategory, owner: form.owner, 
-                  accountId: (txPaymentMethod.value === 'account' || form.type === 'income') ? form.accountId : null, 
-                  cardId: (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null, status: currentStatus, isRecurring: true 
-                });
-                
+                transactions.value.push({ id: `tx_${Date.now()}_${i}`, description: form.description, amount: Number(form.amount), date: dtStr, dueDate: dtStr, type: form.type, categoryId: form.categoryId, subCategory: form.subCategory, owner: form.owner, accountId: (txPaymentMethod.value === 'account' || form.type === 'income') ? form.accountId : null, cardId: (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null, status: currentStatus, isRecurring: true });
                 if (i === 0 && currentStatus === 'received' && form.type === 'income') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance += Number(form.amount); } 
                 else if (i === 0 && currentStatus === 'paid' && form.type === 'expense' && txPaymentMethod.value === 'account') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance -= Number(form.amount); }
               }
@@ -1021,6 +863,10 @@
           saveToStorage(); activeModal.value = null; nextTick(() => renderCharts());
         };
 
+        const saveCategory = () => { categories.value.push({ id: 'cat_' + Date.now(), name: categoryForm.value.name, type: categoryForm.value.type, icon: categoryForm.value.icon || '📌' }); saveToStorage(); activeModal.value = null; };
+        const saveAccount = () => { accounts.value.push({ id: 'acc_' + Date.now(), name: accountForm.value.name, type: accountForm.value.type, balance: Number(accountForm.value.balance), color: accountForm.value.color }); saveToStorage(); activeModal.value = null; };
+        const saveCard = () => { creditCards.value.push({ id: 'card_' + Date.now(), name: cardForm.value.name, bank: cardForm.value.bank, closingDay: Number(cardForm.value.closingDay), dueDay: Number(cardForm.value.dueDay), color: cardForm.value.color }); saveToStorage(); activeModal.value = null; };
+
         const markAsPaid = (item) => {
           item.status = item.type === 'income' ? 'received' : 'paid';
           if (item.accountId) { const acc = accounts.value.find(a => a.id === item.accountId); if (acc) { if (item.type === 'income') acc.balance += Number(item.amount); else acc.balance -= Number(item.amount); } }
@@ -1030,63 +876,28 @@
         const deleteTransaction = (id) => { transactions.value = transactions.value.filter(t => t.id !== id); saveToStorage(); nextTick(() => renderCharts()); };
         const deleteInstallmentGroup = (installmentId) => { transactions.value = transactions.value.filter(t => t.installmentId !== installmentId); installments.value = installments.value.filter(i => i.id !== installmentId); saveToStorage(); nextTick(() => renderCharts()); };
 
-        // Categorias, Contas, Cartões
-        const editCategory = (cat) => { editingCategoryId.value = cat.id; categoryForm.value = { ...cat }; activeModal.value = 'category'; };
-        const saveCategory = () => { if (editingCategoryId.value) { const index = categories.value.findIndex(c => c.id === editingCategoryId.value); if (index !== -1) categories.value[index] = { ...categories.value[index], ...categoryForm.value }; } else { categories.value.push({ id: 'cat_' + Date.now(), ...categoryForm.value }); } saveToStorage(); activeModal.value = null; editingCategoryId.value = null; };
-        const deleteCategory = (id) => { if (transactions.value.some(t => t.categoryId === id)) { alert("Categoria em uso."); return; } if(confirm("Excluir categoria?")) { categories.value = categories.value.filter(c => c.id !== id); saveToStorage(); } };
-
-        const editCard = (card) => { editingCardId.value = card.id; cardForm.value = { ...card }; activeModal.value = 'card'; };
-        const saveCard = () => { if (editingCardId.value) { const index = creditCards.value.findIndex(c => c.id === editingCardId.value); if (index !== -1) creditCards.value[index] = { ...creditCards.value[index], ...cardForm.value }; } else { creditCards.value.push({ id: 'card_' + Date.now(), ...cardForm.value }); } saveToStorage(); activeModal.value = null; editingCardId.value = null; };
-        const deleteCard = (id) => { if (transactions.value.some(t => t.cardId === id)) { alert("Cartão em uso."); return; } if(confirm("Excluir cartão?")) { creditCards.value = creditCards.value.filter(c => c.id !== id); saveToStorage(); } };
-
-        const editAccount = (acc) => { editingAccountId.value = acc.id; accountForm.value = { ...acc }; activeModal.value = 'account'; };
-        const saveAccount = () => { if (editingAccountId.value) { const index = accounts.value.findIndex(a => a.id === editingAccountId.value); if (index !== -1) accounts.value[index] = { ...accounts.value[index], ...accountForm.value }; } else { accounts.value.push({ id: 'acc_' + Date.now(), ...accountForm.value }); } saveToStorage(); activeModal.value = null; editingAccountId.value = null; };
-        const deleteAccount = (id) => { if (transactions.value.some(t => t.accountId === id)) { alert("Conta em uso."); return; } if(confirm("Excluir conta?")) { accounts.value = accounts.value.filter(a => a.id !== id); saveToStorage(); } };
-
-        // ================= GRÁFICOS DO DASHBOARD =================
         let flowChartInstance = null; let donutChartInstance = null;
-        
-        const renderCharts = () => { 
-          const flowCanvas = document.getElementById('flowHistoryChart'); 
-          if (flowCanvas) { 
-            if (flowChartInstance) flowChartInstance.destroy(); 
-            flowChartInstance = new Chart(flowCanvas, { 
-              type: 'bar', 
-              data: { 
-                labels: ['Mês Atual'], 
-                datasets: [
-                  { label: 'Receitas', data: [monthMetrics.value.incomeRealized], backgroundColor: '#10b981' }, 
-                  { label: 'Despesas', data: [monthMetrics.value.expenseRealized], backgroundColor: '#f43f5e' }
-                ] 
-              }, 
-              options: { responsive: true, maintainAspectRatio: false } 
-            }); 
-          } 
-          
-          const donutCanvas = document.getElementById('categoryDonutChart'); 
-          if (donutCanvas) { 
-            if (donutChartInstance) donutChartInstance.destroy(); 
-            
-            const catTotals = {}; 
-            currentMonthTransactions.value.forEach(t => { 
-              if (t.type === 'expense') { 
-                const catName = getCategoryName(t.categoryId); 
-                catTotals[catName] = (catTotals[catName] || 0) + Number(t.amount); 
-              } 
-            }); 
-            
-            const labels = Object.keys(catTotals); 
-            const data = Object.values(catTotals); 
-            const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#10b981']; 
-            
-            if(labels.length > 0) { 
-              donutChartInstance = new Chart(donutCanvas, { 
-                type: 'doughnut', 
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] }, 
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } 
-              }); 
-            } 
-          } 
+        const renderCharts = () => {
+          const flowCanvas = document.getElementById('flowHistoryChart');
+          if (flowCanvas) {
+            const labels = [], incomeData = [], expenseData = [];
+            for (let i = 5; i >= 0; i--) {
+              const d = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - i, 1); const mName = d.toLocaleString('pt-BR', { month: 'short' }); labels.push(mName.charAt(0).toUpperCase() + mName.slice(1));
+              const txs = transactions.value.filter(t => { const itemDate = new Date(t.date + 'T00:00:00'); return itemDate.getFullYear() === d.getFullYear() && itemDate.getMonth() === d.getMonth(); });
+              incomeData.push(txs.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)); expenseData.push(txs.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0));
+            }
+            if (flowChartInstance) flowChartInstance.destroy();
+            flowChartInstance = new Chart(flowCanvas, { type: 'bar', data: { labels, datasets: [{ label: 'Receitas', data: incomeData, backgroundColor: '#10b981', borderRadius: 6 }, { label: 'Despesas', data: expenseData, backgroundColor: '#f43f5e', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { color: isDark.value ? '#cbd5e1' : '#475569' } } }, scales: { x: { ticks: { color: isDark.value ? '#94a3b8' : '#64748b' }, grid: { display: false } }, y: { ticks: { color: isDark.value ? '#94a3b8' : '#64748b' }, grid: { color: isDark.value ? '#334155' : '#f1f5f9' } } } } });
+          }
+
+          const donutCanvas = document.getElementById('categoryDonutChart');
+          if (donutCanvas) {
+            const catMap = {};
+            currentMonthTransactions.value.filter(t => t.type === 'expense').forEach(t => { const cName = getCategoryName(t.categoryId); catMap[cName] = (catMap[cName] || 0) + Number(t.amount); });
+            const labels = Object.keys(catMap), data = Object.values(catMap);
+            if (donutChartInstance) donutChartInstance.destroy();
+            donutChartInstance = new Chart(donutCanvas, { type: 'doughnut', data: { labels: labels.length ? labels : ['Sem Gastos'], datasets: [{ data: data.length ? data : [1], backgroundColor: ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#94a3b8'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: isDark.value ? '#cbd5e1' : '#475569', font: { size: 10 } } } }, cutout: '70%' } });
+          }
         };
 
         watch(currentTab, (newTab) => { if (newTab === 'dashboard') nextTick(() => renderCharts()); });
@@ -1098,18 +909,16 @@
           }); 
         });
 
-        return { 
-          appName, appIcon, isAuthenticated, isLoggingIn, loginEmail, loginPassword, loginError, handleLogin, handleGoogleLogin, handleLogout, 
-          currentTab, tabs, currentMonthFormatted, changeMonth, formatCurrency, formatDate, formatDateBr, searchQuery, 
-          accounts, creditCards, categories, transactions, installments, totalAccountsBalance, monthMetrics, filteredTransactions, installmentSummaryList, getCategoryName, getAccountName, getCardName, getCardBank, getCardSpent, getCardSpentByOwner, translateStatus, getBankLogo,
-          availableCategories, availableSubCategories, uniqueDescriptions, incomeCategories, fixedExpenseCategories, variableExpenseCategories, 
-          activeModal, openModal, filterType, filterCategory, filterSubCategory, filterOwner, filterStatus, filterInstallment,
-          editingTransactionId, txForm, txPaymentMethod, txIsPaid, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount, saveTransaction, deleteTransaction, editTransaction, markAsPaid, deleteInstallmentGroup,
-          editingCategoryId, categoryForm, saveCategory, editCategory, deleteCategory, 
-          editingAccountId, accountForm, editAccount, saveAccount, deleteAccount, 
-          editingCardId, cardForm, editCard, saveCard, deleteCard, 
-          selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais, 
-          invoiceDateForm, openInvoiceDateModal, saveInvoiceDates 
+        return {
+          appName, appIcon, isAuthenticated, isLoggingIn, loginEmail, loginPassword, loginError, handleLogin, handleGoogleLogin, handleLogout,
+          getBankLogo, isDark, currentTab, tabs, currentMonthFormatted, changeMonth, toggleTheme, formatCurrency, formatDate,
+          accounts, creditCards, categories, transactions, installments, totalAccountsBalance, monthMetrics, projectedMonthEndBalance, totalFutureInstallmentsAmount,
+          filteredTransactions, installmentSummaryList, getCategoryName, getAccountName, getCardName, getCardBank, getCardSpent, getCardSpentByOwner, getCategoryMonthlySpent, translateStatus,
+          searchQuery, filterType, filterCategory, filterSubCategory, filterOwner, filterStatus, filterInstallment, availableSubCategories, 
+          activeModal, openModal, txForm, txPaymentMethod, txIsPaid, availableCategories, editingTransactionId, editTransaction,
+          saveTransaction, markAsPaid, deleteTransaction, deleteInstallmentGroup, categoryForm, saveCategory, accountForm, saveAccount, cardForm, saveCard,
+          selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais, invoiceDateForm, openInvoiceDateModal, saveInvoiceDates,
+          uniqueDescriptions, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount
         };
       }
     }).mount('#app');
