@@ -29,7 +29,7 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Firebase Compat CDN -->
+  <!-- Firebase Compat CDN (Bibliotecas de Login e Base de Dados) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
@@ -134,6 +134,7 @@
           </div>
         </div>
 
+        <!-- Navigation Tabs -->
         <nav class="max-w-7xl mx-auto flex items-center gap-2 mt-3 pt-2 border-t border-slate-200/50 dark:border-slate-800/50 overflow-x-auto text-sm">
           <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
             :class="['px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors',
@@ -311,7 +312,7 @@
               <button @click="openModal('account')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Nova Conta</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div v-for="acc in accounts" :key="acc.id" class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3 group relative">
+              <div v-for="acc in accounts" :key="acc.id" class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-start gap-3 group relative">
                 <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white text-sm overflow-hidden shrink-0" :style="{ backgroundColor: acc.color || '#3b82f6' }">
                   <img v-if="getBankLogo(acc.name)" :src="getBankLogo(acc.name)" class="w-full h-full object-cover p-1 bg-white" alt="">
                   <span v-else class="text-xl">🏦</span>
@@ -378,16 +379,58 @@
         <section v-if="currentTab === 'categories'" class="space-y-4">
           <div class="flex justify-between items-center mb-2">
             <div><h2 class="text-base font-bold text-slate-900 dark:text-white">Classes & Categorias Financeiras</h2></div>
-            <button @click="openModal('category')" class="bg-indigo-600 text-white px-3.5 py-2 rounded-lg text-xs font-semibold">+ Nova Categoria</button>
+            <button @click="openModal('category')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition">+ Nova Categoria</button>
           </div>
+          
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800"><h3 class="text-sm font-bold text-emerald-600 mb-3">Receitas</h3><div class="space-y-2"><div v-for="cat in categories.filter(c => c.type === 'income')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center text-sm group"><span>{{ cat.icon }} {{ cat.name }}</span><div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button><button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button></div></div><div v-if="categories.filter(c => c.type === 'income').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div></div></div>
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800"><h3 class="text-sm font-bold text-indigo-600 mb-3">Custos Fixos</h3><div class="space-y-2"><div v-for="cat in categories.filter(c => c.type === 'fixed_expense')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center text-sm group"><span>{{ cat.icon }} {{ cat.name }}</span><div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button><button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button></div></div><div v-if="categories.filter(c => c.type === 'fixed_expense').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div></div></div>
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800"><h3 class="text-sm font-bold text-amber-600 mb-3">Custos Variáveis</h3><div class="space-y-2"><div v-for="cat in categories.filter(c => c.type === 'variable_expense')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center text-sm group"><span>{{ cat.icon }} {{ cat.name }}</span><div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button><button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button></div></div><div v-if="categories.filter(c => c.type === 'variable_expense').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div></div></div>
+            <!-- Receitas -->
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <h3 class="text-sm font-bold text-emerald-600 mb-3">Receitas</h3>
+              <div class="space-y-2">
+                <div v-for="cat in categories.filter(c => c.type === 'income')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center text-sm group">
+                  <span>{{ cat.icon }} {{ cat.name }}</span>
+                  <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button>
+                    <button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button>
+                  </div>
+                </div>
+                <div v-if="categories.filter(c => c.type === 'income').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div>
+              </div>
+            </div>
+
+            <!-- Custos Fixos -->
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <h3 class="text-sm font-bold text-indigo-600 mb-3">Custos Fixos</h3>
+              <div class="space-y-2">
+                <div v-for="cat in categories.filter(c => c.type === 'fixed_expense')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center text-sm group">
+                  <span>{{ cat.icon }} {{ cat.name }}</span>
+                  <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button>
+                    <button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button>
+                  </div>
+                </div>
+                <div v-if="categories.filter(c => c.type === 'fixed_expense').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div>
+              </div>
+            </div>
+
+            <!-- Custos Variáveis -->
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <h3 class="text-sm font-bold text-amber-600 mb-3">Custos Variáveis</h3>
+              <div class="space-y-2">
+                <div v-for="cat in categories.filter(c => c.type === 'variable_expense')" :key="cat.id" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center text-sm group">
+                  <span>{{ cat.icon }} {{ cat.name }}</span>
+                  <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button @click="editCategory(cat)" class="text-[10px] text-blue-500 hover:underline">Editar</button>
+                    <button @click="deleteCategory(cat.id)" class="text-[10px] text-rose-500 hover:underline">Excluir</button>
+                  </div>
+                </div>
+                <div v-if="categories.filter(c => c.type === 'variable_expense').length === 0" class="text-xs text-slate-500 text-center py-2">Sem categorias</div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <!-- ================= TAB: RELATÓRIOS (NOVO BLOCO INTELIGENTE MEU/PAIS) ================= -->
+        <!-- ================= TAB: RELATÓRIOS ================= -->
         <section v-if="currentTab === 'reports'" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             
@@ -471,7 +514,7 @@
 
       </main>
 
-      <!-- ================= MODAIS DE CADASTRO E EDIÇÃO ================= -->
+      <!-- ================= MODAL DE TRANSAÇÃO ================= -->
       <div v-if="activeModal === 'transaction'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 overflow-y-auto max-h-[90vh]">
           <div class="flex justify-between items-center mb-4">
@@ -499,7 +542,13 @@
             </div>
 
             <div v-if="txForm.type !== 'transfer'" class="grid grid-cols-2 gap-3">
-              <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Categoria</label><select v-model="txForm.categoryId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="cat in availableCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option></select></div>
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300">Categoria</label>
+                  <button type="button" @click="openCategoryFromTransaction" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline">+ Criar</button>
+                </div>
+                <select v-model="txForm.categoryId" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"><option v-for="cat in availableCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option></select>
+              </div>
               <div><label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Subgrupo</label><input v-model="txForm.subCategory" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
             </div>
 
@@ -553,11 +602,10 @@
         </div>
       </div>
 
-      <!-- Modais Categoria, Conta, Cartão, Exceção Datas -->
-      <div v-if="activeModal === 'category'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCategory" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCategoryId ? 'Editar Categoria' : 'Nova Categoria' }}</h3><div><label class="block font-semibold mb-1">Nome da Categoria</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Tipo</label><select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="income">Receita</option><option value="fixed_expense">Custo Fixo</option><option value="variable_expense">Custo Variável</option></select></div><div><label class="block font-semibold mb-1">Ícone</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+      <!-- Modais Adicionais -->
+      <div v-if="activeModal === 'category'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCategory" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCategoryId ? 'Editar Categoria' : 'Nova Categoria' }}</h3><div><label class="block font-semibold mb-1">Nome da Categoria</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Tipo</label><select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="income">Receita</option><option value="fixed_expense">Custo Fixo</option><option value="variable_expense">Custo Variável</option></select></div><div><label class="block font-semibold mb-1">Ícone</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="closeCategoryModal" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
       <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveAccount" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingAccountId ? 'Editar Conta' : 'Nova Conta' }}</h3><div><label class="block font-semibold mb-1">Nome</label><input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Tipo</label><select v-model="accountForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="checking">Corrente</option><option value="savings">Poupança</option></select></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="accountForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div></div><div><label class="block font-semibold mb-1">Saldo Inicial</label><input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
       <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCard" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCardId ? 'Editar Cartão' : 'Novo Cartão' }}</h3><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Apelido</label><input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Banco</label><input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Fechamento</label><input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Vencimento</label><input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="cardForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
-      
       <div v-if="activeModal === 'invoice_dates'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveInvoiceDates" class="space-y-4 text-sm"><h3 class="text-lg font-bold text-slate-900 dark:text-white">Ajustar Datas Específicas</h3><p class="text-xs text-slate-500 mb-4">Apenas para a fatura de {{ currentMonthFormatted }}.</p><div><label class="block font-semibold mb-1">Fechamento</label><input v-model="invoiceDateForm.closingDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Vencimento</label><input v-model="invoiceDateForm.dueDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar Exceção</button></div></form></div></div>
     </div>
   </div>
@@ -586,7 +634,6 @@
         const appName = ref('Fluxo');
         const appIcon = ref('https://cdn-icons-png.flaticon.com/512/5501/5501375.png');
 
-        // ================= ESTADO DE AUTENTICAÇÃO =================
         const isAuthenticated = ref(false);
         const isLoggingIn = ref(false);
         const loginEmail = ref('');
@@ -597,6 +644,7 @@
         const currentTab = ref('dashboard');
         const currentDate = ref(new Date()); 
         const activeModal = ref(null);
+        const previousModal = ref(null);
 
         const searchQuery = ref('');
         const filterType = ref('all');
@@ -606,13 +654,13 @@
         const filterStatus = ref('all');
         const filterInstallment = ref('all');
 
-        const txPaymentMethod = ref('account');
+        const txPaymentMethod = ref('card'); // <-- Alterado o valor padrão
         const isInstallmentCheckbox = ref(false);
         const txInstallmentsCount = ref(12);
         const isRecurringCheckbox = ref(false);
         const recurringCount = ref(12);
         const editingTransactionId = ref(null);
-        const txIsPaid = ref(true);
+        const txIsPaid = ref(false); // <-- Alterado o valor padrão
         
         const txForm = ref({ description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: '', subCategory: '', owner: 'meu', accountId: '', cardId: '', destinationAccountId: '' });
         const categoryForm = ref({ name: '', type: 'variable_expense', icon: '' });
@@ -642,7 +690,6 @@
         const installments = ref([]);
         const invoiceExceptions = ref({}); 
 
-        // ================= FUNÇÕES DE AUTENTICAÇÃO =================
         const handleLogin = async () => {
           isLoggingIn.value = true; loginError.value = '';
           try { await auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value); } 
@@ -703,16 +750,9 @@
           return null;
         };
 
-        const saveToStorage = async () => {
-          const payload = { accounts: accounts.value, creditCards: creditCards.value, categories: categories.value, transactions: transactions.value, installments: installments.value, invoiceExceptions: invoiceExceptions.value };
-          try { await db.ref('fluxoData').set(payload); } catch (e) { console.error("Erro a guardar:", e); }
-        };
-
-        // ================= MOTOR DE RECUPERAÇÃO DE PARCELAS =================
         const recoverMissingInstallments = () => {
           let madeChanges = false;
           const existingInstallmentIds = new Set(installments.value.map(i => i.id));
-          
           const grouped = {};
           transactions.value.forEach(t => {
             if (t.installmentId) {
@@ -720,37 +760,23 @@
               grouped[t.installmentId].push(t);
             }
           });
-
           for (const [instId, txs] of Object.entries(grouped)) {
             if (!existingInstallmentIds.has(instId)) {
               txs.sort((a, b) => (a.installmentCurrent || 1) - (b.installmentCurrent || 1));
               const firstTx = txs[0];
-              
               const totalAmount = txs.reduce((sum, t) => sum + Number(t.amount), 0);
               const totalCount = firstTx.installmentTotal || txs.length;
               const baseDesc = firstTx.description.replace(/\s\(\d+\/\d+\)$/, '');
-
-              installments.value.push({
-                id: instId,
-                description: baseDesc,
-                totalAmount: totalAmount,
-                installmentsCount: totalCount,
-                cardId: firstTx.cardId,
-                categoryId: firstTx.categoryId,
-                firstDueDate: firstTx.date
-              });
+              installments.value.push({ id: instId, description: baseDesc, totalAmount: totalAmount, installmentsCount: totalCount, cardId: firstTx.cardId, categoryId: firstTx.categoryId, firstDueDate: firstTx.date });
               madeChanges = true;
             }
           }
-
           if (madeChanges) { saveToStorage(); }
         };
 
-        // Escuta os dados em tempo real do Firebase
         const initializeStorage = () => {
           document.getElementById('dynamic-title').innerText = appName.value + ' — Controle Pessoal';
           const dataRef = db.ref('fluxoData');
-          
           dataRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -760,13 +786,15 @@
               transactions.value = data.transactions || [];
               installments.value = data.installments || [];
               invoiceExceptions.value = data.invoiceExceptions || {};
-              
               recoverMissingInstallments();
             }
             nextTick(() => renderCharts());
-          }, (error) => {
-            console.error("Erro ao carregar dados do Firebase:", error);
-          });
+          }, (error) => { console.error("Erro ao carregar dados do Firebase:", error); });
+        };
+
+        const saveToStorage = async () => {
+          const payload = { accounts: accounts.value, creditCards: creditCards.value, categories: categories.value, transactions: transactions.value, installments: installments.value, invoiceExceptions: invoiceExceptions.value };
+          try { await db.ref('fluxoData').set(payload); } catch (e) {}
         };
 
         const totalAccountsBalance = computed(() => accounts.value.reduce((acc, curr) => acc + Number(curr.balance), 0));
@@ -828,7 +856,6 @@
         
         const availableCategories = computed(() => categories.value.filter(c => txForm.value.type === 'income' ? c.type === 'income' : c.type !== 'income'));
 
-        // ================= LÓGICA DE RELATÓRIO DE FATURAS =================
         const getDateStr = (cardId, year, month, type) => {
           const periodKey = `${cardId}_${year}-${String(month+1).padStart(2,'0')}`;
           const exc = invoiceExceptions.value[periodKey];
@@ -851,11 +878,7 @@
           let prevY = targetY; let prevM = targetM - 1; if (prevM < 0) { prevM = 11; prevY--; }
           const prevClosingStr = getDateStr(cardId, prevY, prevM, 'closingDate');
           const currClosingStr = getDateStr(cardId, targetY, targetM, 'closingDate');
-
-          return transactions.value.filter(t => {
-            if (t.cardId !== cardId || t.type !== 'expense') return false;
-            return t.date >= prevClosingStr && t.date < currClosingStr;
-          }).sort((a,b) => a.date.localeCompare(b.date));
+          return transactions.value.filter(t => { if (t.cardId !== cardId || t.type !== 'expense') return false; return t.date >= prevClosingStr && t.date < currClosingStr; }).sort((a,b) => a.date.localeCompare(b.date));
         });
 
         const invoiceTotal = computed(() => invoiceTransactions.value.reduce((sum, t) => sum + Number(t.amount), 0));
@@ -870,13 +893,14 @@
           saveToStorage(); activeModal.value = null;
         };
 
-
         const openModal = (type) => {
           activeModal.value = type;
           if (type === 'transaction') {
             editingTransactionId.value = null;
             txForm.value = { description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: categories.value[0]?.id || '', subCategory: '', owner: 'meu', accountId: accounts.value[0]?.id || '', cardId: creditCards.value[0]?.id || '' };
-            isInstallmentCheckbox.value = false; isRecurringCheckbox.value = false; txIsPaid.value = true;
+            isInstallmentCheckbox.value = false; isRecurringCheckbox.value = false; 
+            txIsPaid.value = false; // <--- Alteração do Padrão Solicitada
+            txPaymentMethod.value = 'card'; // <--- Alteração do Padrão Solicitada
           } else if (type === 'category') {
             editingCategoryId.value = null;
             categoryForm.value = { name: '', type: 'variable_expense', icon: '📌' };
@@ -897,14 +921,10 @@
           activeModal.value = 'transaction';
         };
 
-        // ================= MOTOR DE GRAVAÇÃO (COM INTERCEPTAÇÃO DE PARCELAS) =================
         const saveTransaction = () => {
           if (editingTransactionId.value) {
             const oldTx = transactions.value.find(t => t.id === editingTransactionId.value);
-            if (oldTx && oldTx.installmentId) {
-               activeModal.value = 'installment_prompt'; 
-               return; 
-            }
+            if (oldTx && oldTx.installmentId) { activeModal.value = 'installment_prompt'; return; }
           }
           executeTransactionSave(false); 
         };
@@ -923,31 +943,17 @@
                  const currentStatusForEdited = txIsPaid.value ? (form.type === 'income' ? 'received' : 'paid') : 'pending';
                  transactions.value.forEach(t => {
                    if (t.installmentId === oldTx.installmentId) {
-                     t.description = form.description;
-                     t.amount = totalAmount;
-                     t.categoryId = form.categoryId;
-                     t.subCategory = form.subCategory;
-                     t.owner = form.type !== 'transfer' ? form.owner : 'meu';
-                     t.cardId = (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null;
-                     
-                     if (t.id === oldTx.id) {
-                         t.date = form.date;
-                         t.status = currentStatusForEdited;
-                     }
+                     t.description = form.description; t.amount = totalAmount; t.categoryId = form.categoryId; t.subCategory = form.subCategory; t.owner = form.type !== 'transfer' ? form.owner : 'meu'; t.cardId = (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null;
+                     if (t.id === oldTx.id) { t.date = form.date; t.status = currentStatusForEdited; }
                    }
                  });
                  const instIndex = installments.value.findIndex(i => i.id === oldTx.installmentId);
-                 if(instIndex !== -1) {
-                     installments.value[instIndex].description = form.description.replace(/\s\(\d+\/\d+\)$/, '');
-                     installments.value[instIndex].cardId = (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null;
-                 }
+                 if(instIndex !== -1) { installments.value[instIndex].description = form.description.replace(/\s\(\d+\/\d+\)$/, ''); installments.value[instIndex].cardId = (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null; }
               } else {
                  if (oldTx.status === 'received' && oldTx.type === 'income') { const acc = accounts.value.find(a => a.id === oldTx.accountId); if (acc) acc.balance -= oldTx.amount; } 
                  else if (oldTx.status === 'paid' && oldTx.type === 'expense' && oldTx.accountId) { const acc = accounts.value.find(a => a.id === oldTx.accountId); if (acc) acc.balance += oldTx.amount; } 
                  else if (oldTx.type === 'transfer') { const orig = accounts.value.find(a => a.id === oldTx.accountId); const dest = accounts.value.find(a => a.id === oldTx.destinationAccountId); if (orig) orig.balance += oldTx.amount; if (dest) dest.balance -= oldTx.amount; }
-
                  transactions.value[index] = { ...oldTx, description: form.description, amount: totalAmount, date: form.date, type: form.type, categoryId: form.categoryId, subCategory: form.subCategory, owner: form.type !== 'transfer' ? form.owner : 'meu', accountId: (txPaymentMethod.value === 'account' || form.type === 'income' || form.type === 'transfer') ? form.accountId : null, cardId: (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null, destinationAccountId: form.type === 'transfer' ? form.destinationAccountId : null, status: status };
-
                  if (status === 'received' && form.type === 'income') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance += totalAmount; } 
                  else if (status === 'paid' && form.type === 'expense' && txPaymentMethod.value === 'account') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance -= totalAmount; } 
                  else if (form.type === 'transfer') { const orig = accounts.value.find(a => a.id === form.accountId); const dest = accounts.value.find(a => a.id === form.destinationAccountId); if (orig) orig.balance -= totalAmount; if (dest) dest.balance += totalAmount; }
@@ -957,7 +963,6 @@
             if (form.type === 'expense' && txPaymentMethod.value === 'card' && isInstallmentCheckbox.value && txInstallmentsCount.value > 1) {
               const installmentId = 'inst_' + Date.now(); const totalCount = Number(txInstallmentsCount.value); const installmentValue = Number((form.amount / totalCount).toFixed(2));
               installments.value.push({ id: installmentId, description: form.description, totalAmount: Number(form.amount), installmentsCount: totalCount, cardId: form.cardId, categoryId: form.categoryId, firstDueDate: form.date });
-
               for (let i = 1; i <= totalCount; i++) {
                 const dt = new Date(form.date + 'T00:00:00'); dt.setMonth(dt.getMonth() + (i - 1)); const dtStr = dt.toISOString().split('T')[0];
                 transactions.value.push({ id: `tx_${Date.now()}_${i}`, description: form.description, amount: installmentValue, date: dtStr, dueDate: dtStr, type: 'expense', categoryId: form.categoryId, subCategory: form.subCategory, owner: form.owner, cardId: form.cardId, status: (i === 1 && txIsPaid.value) ? 'paid' : 'pending', installmentId: installmentId, installmentCurrent: i, installmentTotal: totalCount });
@@ -984,8 +989,10 @@
           saveToStorage(); activeModal.value = null; editingTransactionId.value = null; nextTick(() => renderCharts());
         };
 
+        const openCategoryFromTransaction = () => { previousModal.value = 'transaction'; categoryForm.value = { name: '', type: txForm.value.type === 'income' ? 'income' : 'variable_expense', icon: '📌' }; activeModal.value = 'category'; };
+        const closeCategoryModal = () => { if (previousModal.value === 'transaction') { activeModal.value = 'transaction'; previousModal.value = null; } else { activeModal.value = null; editingCategoryId.value = null; } };
         const editCategory = (cat) => { editingCategoryId.value = cat.id; categoryForm.value = { ...cat }; activeModal.value = 'category'; };
-        const saveCategory = () => { if (editingCategoryId.value) { const index = categories.value.findIndex(c => c.id === editingCategoryId.value); if (index !== -1) categories.value[index] = { ...categories.value[index], ...categoryForm.value }; } else { categories.value.push({ id: 'cat_' + Date.now(), ...categoryForm.value }); } saveToStorage(); activeModal.value = null; editingCategoryId.value = null; };
+        const saveCategory = () => { if (editingCategoryId.value) { const index = categories.value.findIndex(c => c.id === editingCategoryId.value); if (index !== -1) categories.value[index] = { ...categories.value[index], ...categoryForm.value }; } else { const newId = 'cat_' + Date.now(); categories.value.push({ id: newId, ...categoryForm.value }); if (previousModal.value === 'transaction') txForm.value.categoryId = newId; } saveToStorage(); closeCategoryModal(); };
         const deleteCategory = (id) => { if (transactions.value.some(t => t.categoryId === id)) { alert("Categoria em uso."); return; } if(confirm("Excluir categoria?")) { categories.value = categories.value.filter(c => c.id !== id); saveToStorage(); } };
 
         const editAccount = (acc) => { editingAccountId.value = acc.id; accountForm.value = { ...acc }; activeModal.value = 'account'; };
@@ -1045,7 +1052,7 @@
           filteredTransactions, installmentSummaryList, getCategoryName, getAccountName, getCardName, getCardBank, getCardSpent, getCardSpentByOwner, getCategoryMonthlySpent, translateStatus,
           searchQuery, filterType, filterCategory, filterSubCategory, filterOwner, filterStatus, filterInstallment, availableSubCategories, 
           activeModal, openModal, txForm, txPaymentMethod, txIsPaid, availableCategories, editingTransactionId, editTransaction,
-          saveTransaction, executeTransactionSave, markAsPaid, deleteTransaction, deleteInstallmentGroup, categoryForm, saveCategory, editCategory, deleteCategory, accountForm, saveAccount, editAccount, deleteAccount, cardForm, saveCard, editCard, deleteCard,
+          saveTransaction, executeTransactionSave, markAsPaid, deleteTransaction, deleteInstallmentGroup, categoryForm, saveCategory, openCategoryFromTransaction, closeCategoryModal, editCategory, deleteCategory, accountForm, saveAccount, editAccount, deleteAccount, cardForm, saveCard, editCard, deleteCard,
           selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais, invoiceDateForm, openInvoiceDateModal, saveInvoiceDates,
           uniqueDescriptions, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount,
           editingCategoryId, editingAccountId, editingCardId
