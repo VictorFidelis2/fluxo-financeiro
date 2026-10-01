@@ -117,7 +117,6 @@
               </button>
             </div>
 
-            <!-- Botão Theme -->
             <button @click="toggleTheme" class="p-2 text-slate-500 hover:text-indigo-600 transition" title="Alternar Tema">
               <svg v-if="isDark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
               <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
@@ -129,12 +128,10 @@
               <span class="sm:hidden">Novo</span>
             </button>
 
-            <!-- Botão Sair -->
             <button @click="handleLogout" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition" title="Sair">Sair</button>
           </div>
         </div>
 
-        <!-- Navigation Tabs -->
         <nav class="max-w-7xl mx-auto flex items-center gap-2 mt-3 pt-2 border-t border-slate-200/50 dark:border-slate-800/50 overflow-x-auto text-sm">
           <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
             :class="['px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors',
@@ -271,7 +268,7 @@
           </div>
         </section>
 
-        <!-- ================= TAB: PARCELAMENTOS (MOTOR DE CÁLCULO INTELIGENTE) ================= -->
+        <!-- ================= TAB: PARCELAMENTOS ================= -->
         <section v-if="currentTab === 'installments'" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div v-for="inst in installmentSummaryList" :key="inst.id" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
@@ -299,7 +296,7 @@
             </div>
             
             <div v-if="installmentSummaryList.length === 0" class="col-span-full py-8 text-center text-slate-500 text-sm">
-              Não existem compras parceladas ativas registradas.
+              Não existem compras parceladas ativas.
             </div>
           </div>
         </section>
@@ -386,7 +383,7 @@
           </div>
         </section>
 
-        <!-- ================= TAB: RELATÓRIOS (EXTRATO INTELIGENTE) ================= -->
+        <!-- ================= TAB: RELATÓRIOS (NOVO BLOCO INTELIGENTE MEU/PAIS) ================= -->
         <section v-if="currentTab === 'reports'" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             
@@ -473,7 +470,7 @@
 
       </main>
 
-      <!-- ================= MODAIS DE CADASTRO E EDIÇÃO ================= -->
+      <!-- ================= MODAL NOVA MOVIMENTAÇÃO ================= -->
       <div v-if="activeModal === 'transaction'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 overflow-y-auto max-h-[90vh]">
           <div class="flex justify-between items-center mb-4">
@@ -539,10 +536,26 @@
         </div>
       </div>
 
+      <!-- ================= NOVO MODAL DE EDIÇÃO DE PARCELA (PERGUNTA) ================= -->
+      <div v-if="activeModal === 'installment_prompt'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-center">
+          <div class="w-16 h-16 mx-auto rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Atenção às Parcelas!</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Esta movimentação faz parte de uma compra parcelada. Deseja aplicar as alterações feitas a <b>todas</b> as outras parcelas associadas ou apenas a esta?</p>
+          <div class="flex flex-col gap-3">
+            <button @click="executeTransactionSave(true)" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition">Alterar TODAS as Parcelas</button>
+            <button @click="executeTransactionSave(false)" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-semibold transition">Alterar APENAS Esta Parcela</button>
+            <button @click="activeModal = 'transaction'" class="w-full py-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm mt-2 transition">Voltar para a Edição</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Modais Categoria, Conta, Cartão, Exceção Datas -->
-      <div v-if="activeModal === 'category'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCategory" class="space-y-4 text-sm"><div><label class="block font-semibold mb-1">Nome da Categoria</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Tipo</label><select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="income">Receita</option><option value="fixed_expense">Custo Fixo</option><option value="variable_expense">Custo Variável</option></select></div><div><label class="block font-semibold mb-1">Ícone</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
-      <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveAccount" class="space-y-4 text-sm"><div><label class="block font-semibold mb-1">Nome</label><input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Tipo</label><select v-model="accountForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="checking">Corrente</option><option value="savings">Poupança</option></select></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="accountForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div></div><div><label class="block font-semibold mb-1">Saldo Inicial</label><input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
-      <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCard" class="space-y-4 text-sm"><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Apelido</label><input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Banco</label><input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Fechamento</label><input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Vencimento</label><input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="cardForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+      <div v-if="activeModal === 'category'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCategory" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCategoryId ? 'Editar Categoria' : 'Nova Categoria' }}</h3><div><label class="block font-semibold mb-1">Nome da Categoria</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Tipo</label><select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="income">Receita</option><option value="fixed_expense">Custo Fixo</option><option value="variable_expense">Custo Variável</option></select></div><div><label class="block font-semibold mb-1">Ícone</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+      <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveAccount" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingAccountId ? 'Editar Conta' : 'Nova Conta' }}</h3><div><label class="block font-semibold mb-1">Nome</label><input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Tipo</label><select v-model="accountForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="checking">Corrente</option><option value="savings">Poupança</option></select></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="accountForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div></div><div><label class="block font-semibold mb-1">Saldo Inicial</label><input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
+      <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCard" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCardId ? 'Editar Cartão' : 'Novo Cartão' }}</h3><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Apelido</label><input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Banco</label><input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Fechamento</label><input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Vencimento</label><input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="cardForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
       
       <div v-if="activeModal === 'invoice_dates'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveInvoiceDates" class="space-y-4 text-sm"><h3 class="text-lg font-bold text-slate-900 dark:text-white">Ajustar Datas Específicas</h3><p class="text-xs text-slate-500 mb-4">Apenas para a fatura de {{ currentMonthFormatted }}.</p><div><label class="block font-semibold mb-1">Fechamento</label><input v-model="invoiceDateForm.closingDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Vencimento</label><input v-model="invoiceDateForm.dueDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar Exceção</button></div></form></div></div>
     </div>
@@ -622,6 +635,7 @@
         const creditCards = ref([]);
         const categories = ref([]);
         const transactions = ref([]);
+        const installments = ref([]);
         const invoiceExceptions = ref({}); 
 
         // ================= FUNÇÕES DE AUTENTICAÇÃO =================
@@ -639,7 +653,7 @@
         };
 
         const handleLogout = async () => {
-          try { await auth.signOut(); accounts.value = []; categories.value = []; transactions.value = []; invoiceExceptions.value = {}; } catch (error) {}
+          try { await auth.signOut(); accounts.value = []; categories.value = []; transactions.value = []; installments.value = []; invoiceExceptions.value = {}; } catch (error) {}
         };
 
         const uniqueDescriptions = computed(() => {
@@ -697,6 +711,7 @@
               creditCards.value = data.creditCards || [];
               categories.value = data.categories || []; 
               transactions.value = data.transactions || [];
+              installments.value = data.installments || [];
               invoiceExceptions.value = data.invoiceExceptions || {};
             }
             nextTick(() => renderCharts());
@@ -707,13 +722,8 @@
 
         // Guarda os dados no Firebase
         const saveToStorage = async () => {
-          // Omitimos installments.value pois ele agora é dinâmico, mas guardamos todo o resto intacto.
-          const payload = { accounts: accounts.value, creditCards: creditCards.value, categories: categories.value, transactions: transactions.value, invoiceExceptions: invoiceExceptions.value };
-          try { 
-            await db.ref('fluxoData').set(payload); 
-          } catch (e) { 
-            console.error("Erro a guardar:", e); 
-          }
+          const payload = { accounts: accounts.value, creditCards: creditCards.value, categories: categories.value, transactions: transactions.value, installments: installments.value, invoiceExceptions: invoiceExceptions.value };
+          try { await db.ref('fluxoData').set(payload); } catch (e) { console.error("Erro a guardar:", e); }
         };
 
         const totalAccountsBalance = computed(() => accounts.value.reduce((acc, curr) => acc + Number(curr.balance), 0));
@@ -755,37 +765,13 @@
           }).sort((a,b) => b.date.localeCompare(a.date));
         });
 
-        // ================= CONSTRUTOR DINÂMICO DE PARCELAS =================
-        // Em vez de usar uma lista secundária sujeita a erros, reconstrói as parcelas lendo as tuas próprias transações.
         const installmentSummaryList = computed(() => {
-          const map = {};
-          transactions.value.forEach(t => {
-            if (t.installmentId) {
-              if (!map[t.installmentId]) {
-                let baseDesc = t.description.replace(/\s\(\d+\/\d+\)$/, '');
-                map[t.installmentId] = {
-                  id: t.installmentId,
-                  description: baseDesc,
-                  cardId: t.cardId,
-                  totalCount: t.installmentTotal || 1,
-                  paidCount: 0,
-                  paidAmount: 0,
-                  remainingAmount: 0
-                };
-              }
-              const group = map[t.installmentId];
-              if (t.status === 'paid' || t.status === 'received') {
-                group.paidCount += 1;
-                group.paidAmount += Number(t.amount);
-              } else {
-                group.remainingAmount += Number(t.amount);
-              }
-              if (t.installmentTotal && t.installmentTotal > group.totalCount) {
-                group.totalCount = t.installmentTotal;
-              }
-            }
+          return installments.value.map(inst => {
+            const relTx = transactions.value.filter(t => t.installmentId === inst.id);
+            const paidTx = relTx.filter(t => t.status === 'paid');
+            const pendingTx = relTx.filter(t => t.status !== 'paid');
+            return { ...inst, totalCount: inst.installmentsCount, paidCount: paidTx.length, remainingAmount: pendingTx.reduce((sum, t) => sum + Number(t.amount), 0) };
           });
-          return Object.values(map);
         });
 
         const getCategoryName = (id) => categories.value.find(c => c.id === id)?.name || 'Geral';
@@ -841,7 +827,6 @@
           saveToStorage(); activeModal.value = null;
         };
 
-
         const openModal = (type) => {
           activeModal.value = type;
           if (type === 'transaction') {
@@ -859,28 +844,70 @@
           activeModal.value = 'transaction';
         };
 
+        // ================= NOVO MOTOR DE GRAVAÇÃO (COM INTERCEPTAÇÃO DE PARCELAS) =================
         const saveTransaction = () => {
+          if (editingTransactionId.value) {
+            const oldTx = transactions.value.find(t => t.id === editingTransactionId.value);
+            // Se estivermos a editar e a compra fizer parte de um parcelamento
+            if (oldTx && oldTx.installmentId) {
+               activeModal.value = 'installment_prompt'; // Abre o pop-up de pergunta!
+               return; // Interrompe a gravação imediata
+            }
+          }
+          executeTransactionSave(false); // Gravação normal se não for parcela
+        };
+
+        const executeTransactionSave = (updateAllInstallments) => {
           const form = txForm.value;
           const status = txIsPaid.value ? (form.type === 'income' ? 'received' : 'paid') : 'pending';
+          const totalAmount = Number(form.amount);
 
           if (editingTransactionId.value) {
             const index = transactions.value.findIndex(t => t.id === editingTransactionId.value);
             if (index !== -1) {
               const oldTx = transactions.value[index];
-              if (oldTx.status === 'received' && oldTx.type === 'income') { const acc = accounts.value.find(a => a.id === oldTx.accountId); if (acc) acc.balance -= oldTx.amount; } 
-              else if (oldTx.status === 'paid' && oldTx.type === 'expense' && oldTx.accountId) { const acc = accounts.value.find(a => a.id === oldTx.accountId); if (acc) acc.balance += oldTx.amount; } 
-              else if (oldTx.type === 'transfer') { const orig = accounts.value.find(a => a.id === oldTx.accountId); const dest = accounts.value.find(a => a.id === oldTx.destinationAccountId); if (orig) orig.balance += oldTx.amount; if (dest) dest.balance -= oldTx.amount; }
 
-              transactions.value[index] = { ...oldTx, description: form.description, amount: Number(form.amount), date: form.date, type: form.type, categoryId: form.categoryId, subCategory: form.subCategory, owner: form.type !== 'transfer' ? form.owner : 'meu', accountId: (txPaymentMethod.value === 'account' || form.type === 'income' || form.type === 'transfer') ? form.accountId : null, cardId: (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null, destinationAccountId: form.type === 'transfer' ? form.destinationAccountId : null, status: status };
+              // ATUALIZAR TODAS AS PARCELAS IRMÃS
+              if (updateAllInstallments && oldTx.installmentId) {
+                 const currentStatusForEdited = txIsPaid.value ? (form.type === 'income' ? 'received' : 'paid') : 'pending';
+                 
+                 transactions.value.forEach(t => {
+                   if (t.installmentId === oldTx.installmentId) {
+                     // Sincroniza os dados gerais
+                     t.description = form.description;
+                     t.amount = totalAmount;
+                     t.categoryId = form.categoryId;
+                     t.subCategory = form.subCategory;
+                     t.owner = form.type !== 'transfer' ? form.owner : 'meu';
+                     t.cardId = (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null;
+                     
+                     // Aplica a data e o status APENAS na parcela exata que o utilizador clicou para editar
+                     if (t.id === oldTx.id) {
+                         t.date = form.date;
+                         t.status = currentStatusForEdited;
+                     }
+                   }
+                 });
 
-              if (status === 'received' && form.type === 'income') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance += Number(form.amount); } 
-              else if (status === 'paid' && form.type === 'expense' && txPaymentMethod.value === 'account') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance -= Number(form.amount); } 
-              else if (form.type === 'transfer') { const orig = accounts.value.find(a => a.id === form.accountId); const dest = accounts.value.find(a => a.id === form.destinationAccountId); if (orig) orig.balance -= Number(form.amount); if (dest) dest.balance += Number(form.amount); }
+              // ATUALIZAR APENAS ESTA PARCELA
+              } else {
+                 if (oldTx.status === 'received' && oldTx.type === 'income') { const acc = accounts.value.find(a => a.id === oldTx.accountId); if (acc) acc.balance -= oldTx.amount; } 
+                 else if (oldTx.status === 'paid' && oldTx.type === 'expense' && oldTx.accountId) { const acc = accounts.value.find(a => a.id === oldTx.accountId); if (acc) acc.balance += oldTx.amount; } 
+                 else if (oldTx.type === 'transfer') { const orig = accounts.value.find(a => a.id === oldTx.accountId); const dest = accounts.value.find(a => a.id === oldTx.destinationAccountId); if (orig) orig.balance += oldTx.amount; if (dest) dest.balance -= oldTx.amount; }
+
+                 transactions.value[index] = { ...oldTx, description: form.description, amount: totalAmount, date: form.date, type: form.type, categoryId: form.categoryId, subCategory: form.subCategory, owner: form.type !== 'transfer' ? form.owner : 'meu', accountId: (txPaymentMethod.value === 'account' || form.type === 'income' || form.type === 'transfer') ? form.accountId : null, cardId: (txPaymentMethod.value === 'card' && form.type === 'expense') ? form.cardId : null, destinationAccountId: form.type === 'transfer' ? form.destinationAccountId : null, status: status };
+
+                 if (status === 'received' && form.type === 'income') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance += totalAmount; } 
+                 else if (status === 'paid' && form.type === 'expense' && txPaymentMethod.value === 'account') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance -= totalAmount; } 
+                 else if (form.type === 'transfer') { const orig = accounts.value.find(a => a.id === form.accountId); const dest = accounts.value.find(a => a.id === form.destinationAccountId); if (orig) orig.balance -= totalAmount; if (dest) dest.balance += totalAmount; }
+              }
             }
           } else {
+            // CRIAR NOVO LANÇAMENTO
             if (form.type === 'expense' && txPaymentMethod.value === 'card' && isInstallmentCheckbox.value && txInstallmentsCount.value > 1) {
               const installmentId = 'inst_' + Date.now(); const totalCount = Number(txInstallmentsCount.value); const installmentValue = Number((form.amount / totalCount).toFixed(2));
-              
+              installments.value.push({ id: installmentId, description: form.description, totalAmount: Number(form.amount), installmentsCount: totalCount, cardId: form.cardId, categoryId: form.categoryId, firstDueDate: form.date });
+
               for (let i = 1; i <= totalCount; i++) {
                 const dt = new Date(form.date + 'T00:00:00'); dt.setMonth(dt.getMonth() + (i - 1)); const dtStr = dt.toISOString().split('T')[0];
                 transactions.value.push({ id: `tx_${Date.now()}_${i}`, description: form.description, amount: installmentValue, date: dtStr, dueDate: dtStr, type: 'expense', categoryId: form.categoryId, subCategory: form.subCategory, owner: form.owner, cardId: form.cardId, status: (i === 1 && txIsPaid.value) ? 'paid' : 'pending', installmentId: installmentId, installmentCurrent: i, installmentTotal: totalCount });
@@ -904,8 +931,16 @@
               else if (status === 'paid' && form.type === 'expense' && txPaymentMethod.value === 'account') { const acc = accounts.value.find(a => a.id === form.accountId); if (acc) acc.balance -= Number(form.amount); }
             }
           }
-          saveToStorage(); activeModal.value = null; nextTick(() => renderCharts());
+          
+          saveToStorage(); 
+          activeModal.value = null; 
+          editingTransactionId.value = null;
+          nextTick(() => renderCharts());
         };
+
+        const saveCategory = () => { categories.value.push({ id: 'cat_' + Date.now(), name: categoryForm.value.name, type: categoryForm.value.type, icon: categoryForm.value.icon || '📌' }); saveToStorage(); activeModal.value = null; };
+        const saveAccount = () => { accounts.value.push({ id: 'acc_' + Date.now(), name: accountForm.value.name, type: accountForm.value.type, balance: Number(accountForm.value.balance), color: accountForm.value.color }); saveToStorage(); activeModal.value = null; };
+        const saveCard = () => { creditCards.value.push({ id: 'card_' + Date.now(), name: cardForm.value.name, bank: cardForm.value.bank, closingDay: Number(cardForm.value.closingDay), dueDay: Number(cardForm.value.dueDay), color: cardForm.value.color }); saveToStorage(); activeModal.value = null; };
 
         const markAsPaid = (item) => {
           item.status = item.type === 'income' ? 'received' : 'paid';
@@ -914,7 +949,7 @@
         };
 
         const deleteTransaction = (id) => { transactions.value = transactions.value.filter(t => t.id !== id); saveToStorage(); nextTick(() => renderCharts()); };
-        const deleteInstallmentGroup = (installmentId) => { transactions.value = transactions.value.filter(t => t.installmentId !== installmentId); saveToStorage(); nextTick(() => renderCharts()); };
+        const deleteInstallmentGroup = (installmentId) => { transactions.value = transactions.value.filter(t => t.installmentId !== installmentId); installments.value = installments.value.filter(i => i.id !== installmentId); saveToStorage(); nextTick(() => renderCharts()); };
 
         let flowChartInstance = null; let donutChartInstance = null;
         const renderCharts = () => {
@@ -952,11 +987,11 @@
         return {
           appName, appIcon, isAuthenticated, isLoggingIn, loginEmail, loginPassword, loginError, handleLogin, handleGoogleLogin, handleLogout,
           getBankLogo, isDark, currentTab, tabs, currentMonthFormatted, changeMonth, toggleTheme, formatCurrency, formatDate,
-          accounts, creditCards, categories, transactions, totalAccountsBalance, monthMetrics, projectedMonthEndBalance, totalFutureInstallmentsAmount,
+          accounts, creditCards, categories, transactions, installments, totalAccountsBalance, monthMetrics, projectedMonthEndBalance, totalFutureInstallmentsAmount,
           filteredTransactions, installmentSummaryList, getCategoryName, getAccountName, getCardName, getCardBank, getCardSpent, getCardSpentByOwner, getCategoryMonthlySpent, translateStatus,
           searchQuery, filterType, filterCategory, filterSubCategory, filterOwner, filterStatus, filterInstallment, availableSubCategories, 
           activeModal, openModal, txForm, txPaymentMethod, txIsPaid, availableCategories, editingTransactionId, editTransaction,
-          saveTransaction, markAsPaid, deleteTransaction, deleteInstallmentGroup,
+          saveTransaction, executeTransactionSave, markAsPaid, deleteTransaction, deleteInstallmentGroup, categoryForm, saveCategory, accountForm, saveAccount, cardForm, saveCard,
           selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais, invoiceDateForm, openInvoiceDateModal, saveInvoiceDates,
           uniqueDescriptions, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount
         };
