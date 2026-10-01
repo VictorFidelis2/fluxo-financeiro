@@ -9,7 +9,11 @@
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: { extend: { colors: { brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } } } }
+      theme: { 
+        extend: { 
+          colors: { brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } } 
+        } 
+      }
     }
   </script>
 
@@ -37,19 +41,32 @@
     <!-- ================= ECRÃ DE LOGIN ================= -->
     <div v-if="!isAuthenticated" class="min-h-screen flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-900 w-full max-w-md p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl">
+        
         <div class="text-center mb-8">
           <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 mb-4 p-2">
             <span class="text-3xl">💸</span>
           </div>
           <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Bem-vindo ao Fluxo</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Faz login para aceder</p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Faça login para acessar</p>
         </div>
         
         <form @submit.prevent="handleLogin" class="space-y-4">
-          <div><label class="block text-sm font-semibold mb-1">E-mail</label><input v-model="loginEmail" type="email" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm"></div>
-          <div><label class="block text-sm font-semibold mb-1">Palavra-passe</label><input v-model="loginPassword" type="password" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm"></div>
-          <div v-if="loginError" class="p-3 rounded-lg bg-rose-500/10 text-rose-600 text-xs font-semibold text-center">{{ loginError }}</div>
-          <button type="submit" :disabled="isLoggingIn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg">{{ isLoggingIn ? 'A verificar...' : 'Entrar' }}</button>
+          <div>
+            <label class="block text-sm font-semibold mb-1">E-mail</label>
+            <input v-model="loginEmail" type="email" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1">Senha</label>
+            <input v-model="loginPassword" type="password" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm">
+          </div>
+          
+          <div v-if="loginError" class="p-3 rounded-lg bg-rose-500/10 text-rose-600 text-xs font-semibold text-center">
+            {{ loginError }}
+          </div>
+          
+          <button type="submit" :disabled="isLoggingIn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg">
+            {{ isLoggingIn ? 'Verificando...' : 'Entrar' }}
+          </button>
         </form>
 
         <div class="mt-6 flex items-center justify-between">
@@ -72,6 +89,7 @@
 
     <!-- ================= APLICAÇÃO PRINCIPAL ================= -->
     <div v-else class="flex flex-col min-h-screen">
+      
       <!-- Top Navigation Bar -->
       <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3.5">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
@@ -110,15 +128,44 @@
         <!-- ================= DASHBOARD ================= -->
         <section v-if="currentTab === 'dashboard'" class="space-y-6">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Saldo em Contas</span><div class="mt-2 flex items-baseline justify-between"><span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ formatCurrency(totalAccountsBalance) }}</span></div></div>
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Entradas no Mês</span><div class="mt-2 flex items-baseline justify-between"><span class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">+{{ formatCurrency(monthMetrics.incomeRealized) }}</span></div></div>
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Despesas no Mês</span><div class="mt-2 flex items-baseline justify-between"><span class="text-2xl font-bold tracking-tight text-rose-600 dark:text-rose-400">-{{ formatCurrency(monthMetrics.expenseRealized) }}</span></div></div>
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Resultado do Mês</span><div class="mt-2 flex items-baseline justify-between"><span class="text-2xl font-bold tracking-tight" :class="monthMetrics.netSavings >= 0 ? 'text-indigo-600' : 'text-rose-600'">{{ formatCurrency(monthMetrics.netSavings) }}</span></div></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Saldo em Contas</span>
+              <div class="mt-2 flex items-baseline justify-between">
+                <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ formatCurrency(totalAccountsBalance) }}</span>
+              </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Entradas no Mês</span>
+              <div class="mt-2 flex items-baseline justify-between">
+                <span class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">+{{ formatCurrency(monthMetrics.incomeRealized) }}</span>
+              </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Despesas no Mês</span>
+              <div class="mt-2 flex items-baseline justify-between">
+                <span class="text-2xl font-bold tracking-tight text-rose-600 dark:text-rose-400">-{{ formatCurrency(monthMetrics.expenseRealized) }}</span>
+              </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Resultado do Mês</span>
+              <div class="mt-2 flex items-baseline justify-between">
+                <span class="text-2xl font-bold tracking-tight" :class="monthMetrics.netSavings >= 0 ? 'text-indigo-600' : 'text-rose-600'">{{ formatCurrency(monthMetrics.netSavings) }}</span>
+              </div>
+            </div>
           </div>
-          <!-- Gráficos -->
+          
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between"><h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Evolução Mensal</h3><div class="h-64 relative"><canvas id="flowHistoryChart"></canvas></div></div>
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between"><h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Despesas por Categoria</h3><div class="h-64 relative flex items-center justify-center"><canvas id="categoryDonutChart"></canvas></div></div>
+            <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Evolução Mensal</h3>
+              <div class="h-64 relative"><canvas id="flowHistoryChart"></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Despesas por Categoria</h3>
+              <div class="h-64 relative flex items-center justify-center"><canvas id="categoryDonutChart"></canvas></div>
+            </div>
           </div>
         </section>
 
@@ -131,25 +178,94 @@
               </div>
             </div>
           </div>
+          
           <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
-                  <tr><th class="py-3.5 px-4">Data</th><th class="py-3.5 px-4">Descrição</th><th class="py-3.5 px-4">Categoria</th><th class="py-3.5 px-4">Responsável</th><th class="py-3.5 px-4 text-right">Valor</th><th class="py-3.5 px-4 text-center">Ações</th></tr>
+                  <tr>
+                    <th class="py-3.5 px-4">Data</th>
+                    <th class="py-3.5 px-4">Descrição</th>
+                    <th class="py-3.5 px-4">Categoria</th>
+                    <th class="py-3.5 px-4">Responsável</th>
+                    <th class="py-3.5 px-4 text-right">Valor</th>
+                    <th class="py-3.5 px-4 text-center">Ações</th>
+                  </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr v-for="item in filteredTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40 transition">
                     <td class="py-3 px-4 text-xs text-slate-500">{{ formatDateBr(item.date) }}</td>
-                    <td class="py-3 px-4 font-medium">{{ item.description }}</td>
-                    <td class="py-3 px-4 text-xs"><span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800">{{ getCategoryName(item.categoryId) }}</span></td>
+                    <td class="py-3 px-4 font-medium">
+                      {{ item.description }} 
+                      <!-- Mostra a parcela se existir (ex: 1/5) -->
+                      <span v-if="item.totalInstallments > 1" class="text-xs text-indigo-500 ml-1 font-bold">
+                        ({{ item.installmentIndex }}/{{ item.totalInstallments }})
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 text-xs">
+                      <span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800">{{ getCategoryName(item.categoryId) }}</span>
+                    </td>
                     <td class="py-3 px-4 text-xs text-slate-500">{{ item.owner === 'pais' ? 'Meus Pais' : 'Meu' }}</td>
-                    <td class="py-3 px-4 text-right font-bold" :class="item.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">{{ formatCurrency(item.amount) }}</td>
+                    <td class="py-3 px-4 text-right font-bold" :class="item.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">
+                      {{ formatCurrency(item.amount) }}
+                    </td>
                     <td class="py-3 px-4 text-center flex gap-2 justify-center">
                       <button @click="editTransaction(item)" class="text-blue-500 hover:underline text-xs">Editar</button>
                       <button @click="deleteTransaction(item.id)" class="text-rose-500 hover:underline text-xs">Excluir</button>
                     </td>
                   </tr>
-                  <tr v-if="filteredTransactions.length === 0"><td colspan="6" class="py-8 text-center text-sm text-slate-400">Nenhum lançamento encontrado neste mês.</td></tr>
+                  <tr v-if="filteredTransactions.length === 0">
+                    <td colspan="6" class="py-8 text-center text-sm text-slate-400">Nenhum lançamento encontrado neste mês.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= PARCELAS (NOVO MÓDULO) ================= -->
+        <section v-if="currentTab === 'installments'" class="space-y-6">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Módulo de Parcelas</h3>
+            <p class="text-xs text-slate-500">Parcelas ativas no mês de <span class="font-bold text-indigo-500">{{ currentMonthFormatted }}</span></p>
+          </div>
+
+          <div v-if="installmentsByCard.length === 0" class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 text-center shadow-sm">
+            <p class="text-slate-500 text-sm">Não há compras parceladas a vencer neste mês.</p>
+          </div>
+
+          <div v-for="group in installmentsByCard" :key="group.card.id" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full" :style="{ backgroundColor: group.card.color }"></div>
+                <div>
+                  <h4 class="font-bold text-sm text-slate-900 dark:text-white">Cartão: {{ group.card.name }}</h4>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-slate-500 font-bold uppercase">Total Parcelado no Mês</p>
+                <p class="text-lg font-bold text-rose-600">{{ formatCurrency(group.total) }}</p>
+              </div>
+            </div>
+            
+            <div class="p-0 overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="text-xs uppercase text-slate-500 font-semibold border-b border-slate-100 dark:border-slate-800">
+                  <tr>
+                    <th class="py-3 px-4">Data Compra</th>
+                    <th class="py-3 px-4">Descrição</th>
+                    <th class="py-3 px-4 text-center">Parcela</th>
+                    <th class="py-3 px-4 text-right">Valor</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr v-for="item in group.items" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40">
+                    <td class="py-3 px-4 text-xs text-slate-500">{{ formatDateBr(item.date) }}</td>
+                    <td class="py-3 px-4 font-medium">{{ item.description }}</td>
+                    <td class="py-3 px-4 text-center font-bold text-indigo-500">{{ item.installmentIndex }} de {{ item.totalInstallments }}</td>
+                    <td class="py-3 px-4 text-right font-bold text-rose-600">{{ formatCurrency(item.amount) }}</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -163,7 +279,7 @@
             <button @click="openModal('category')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Nova Categoria</button>
           </div>
 
-          <!-- Bloco: Receitas -->
+          <!-- Receitas -->
           <div v-if="incomeCategories.length > 0">
             <h4 class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-3 border-b border-slate-200 dark:border-slate-800 pb-1">Receitas</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -180,7 +296,7 @@
             </div>
           </div>
 
-          <!-- Bloco: Custos Fixos -->
+          <!-- Custos Fixos -->
           <div v-if="fixedExpenseCategories.length > 0">
             <h4 class="text-sm font-bold text-rose-600 dark:text-rose-400 mb-3 border-b border-slate-200 dark:border-slate-800 pb-1">Custos Fixos</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -197,7 +313,7 @@
             </div>
           </div>
 
-          <!-- Bloco: Custos Variáveis -->
+          <!-- Custos Variáveis -->
           <div v-if="variableExpenseCategories.length > 0">
             <h4 class="text-sm font-bold text-orange-500 dark:text-orange-400 mb-3 border-b border-slate-200 dark:border-slate-800 pb-1">Custos Variáveis</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -213,19 +329,18 @@
               </div>
             </div>
           </div>
-
-          <div v-if="categories.length === 0" class="text-center py-8 text-slate-500 text-sm">
-            Nenhuma categoria cadastrada.
-          </div>
         </section>
 
         <!-- ================= CONTAS E CARTÕES ================= -->
         <section v-if="currentTab === 'accounts'" class="space-y-6">
+          
+          <!-- Contas -->
           <div>
             <div class="flex justify-between items-center mb-3">
               <h3 class="text-base font-bold text-slate-900 dark:text-white">Contas & Carteiras</h3>
               <button @click="openModal('account')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Nova Conta</button>
             </div>
+            
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div v-for="acc in accounts" :key="acc.id" class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between group">
                 <div class="flex items-center gap-3">
@@ -243,11 +358,13 @@
             </div>
           </div>
 
+          <!-- Cartões -->
           <div>
             <div class="flex justify-between items-center mb-3">
               <h3 class="text-base font-bold text-slate-900 dark:text-white">Cartões de Crédito</h3>
               <button @click="openModal('card')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Novo Cartão</button>
             </div>
+            
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div v-for="card in creditCards" :key="card.id" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm group">
                 <div class="flex justify-between items-start">
@@ -268,7 +385,7 @@
           </div>
         </section>
 
-        <!-- ================= RELATÓRIOS (Com separação Meu / Pais) ================= -->
+        <!-- ================= RELATÓRIOS ================= -->
         <section v-if="currentTab === 'reports'" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             
@@ -299,29 +416,51 @@
               </div>
             </div>
 
+            <!-- Ajuste de Datas Específicas -->
             <div v-if="selectedReportCard" class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 p-4 rounded-xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div class="flex gap-6 text-sm">
-                <div><span class="text-slate-500 block text-xs uppercase font-bold">Fechamento</span><span class="font-bold text-slate-900 dark:text-white">{{ formatDateBr(currentInvoiceDetails.closingDate) }}</span></div>
-                <div><span class="text-slate-500 block text-xs uppercase font-bold">Vencimento</span><span class="font-bold text-slate-900 dark:text-white">{{ formatDateBr(currentInvoiceDetails.dueDate) }}</span></div>
+                <div>
+                  <span class="text-slate-500 block text-xs uppercase font-bold">Fechamento</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ formatDateBr(currentInvoiceDetails.closingDate) }}</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block text-xs uppercase font-bold">Vencimento</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ formatDateBr(currentInvoiceDetails.dueDate) }}</span>
+                </div>
               </div>
               <button @click="openInvoiceDateModal" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm">
                 Ajustar Datas
               </button>
             </div>
 
+            <!-- Tabela de Lançamentos da Fatura -->
             <div v-if="selectedReportCard" class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
               <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
-                  <tr><th class="py-3 px-4">Data da Compra</th><th class="py-3 px-4">Descrição</th><th class="py-3 px-4">Responsável</th><th class="py-3 px-4 text-right">Valor (R$)</th></tr>
+                  <tr>
+                    <th class="py-3 px-4">Data da Compra</th>
+                    <th class="py-3 px-4">Descrição</th>
+                    <th class="py-3 px-4">Responsável</th>
+                    <th class="py-3 px-4 text-right">Valor (R$)</th>
+                  </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                   <tr v-for="item in invoiceTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40">
                     <td class="py-3 px-4 text-xs text-slate-500">{{ formatDateBr(item.date) }}</td>
-                    <td class="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</td>
-                    <td class="py-3 px-4 text-xs font-medium" :class="item.owner === 'pais' ? 'text-blue-500' : 'text-indigo-500'">{{ item.owner === 'pais' ? 'Meus Pais' : 'Meu' }}</td>
+                    <td class="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">
+                      {{ item.description }}
+                      <span v-if="item.totalInstallments > 1" class="text-xs text-indigo-500 ml-1 font-bold">
+                        ({{ item.installmentIndex }}/{{ item.totalInstallments }})
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 text-xs font-medium" :class="item.owner === 'pais' ? 'text-blue-500' : 'text-indigo-500'">
+                      {{ item.owner === 'pais' ? 'Meus Pais' : 'Meu' }}
+                    </td>
                     <td class="py-3 px-4 text-right font-bold text-rose-600">{{ formatCurrency(item.amount) }}</td>
                   </tr>
-                  <tr v-if="invoiceTransactions.length === 0"><td colspan="4" class="py-6 text-center text-slate-500">Nenhum lançamento nesta fatura.</td></tr>
+                  <tr v-if="invoiceTransactions.length === 0">
+                    <td colspan="4" class="py-6 text-center text-slate-500">Nenhum lançamento nesta fatura.</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -340,11 +479,20 @@
               <button type="button" @click="txForm.type = 'income'" :class="['flex-1 py-1.5 rounded-md transition', txForm.type === 'income' ? 'bg-white dark:bg-slate-700 text-emerald-600 shadow' : 'text-slate-500']">Receita</button>
             </div>
 
-            <div><label class="block text-sm font-semibold mb-1">Descrição</label><input v-model="txForm.description" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
+            <div>
+              <label class="block text-sm font-semibold mb-1">Descrição</label>
+              <input v-model="txForm.description" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
+            </div>
             
             <div class="grid grid-cols-2 gap-3">
-              <div><label class="block text-sm font-semibold mb-1">Valor (R$)</label><input v-model.number="txForm.amount" required type="number" step="0.01" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
-              <div><label class="block text-sm font-semibold mb-1">Data</label><input v-model="txForm.date" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm"></div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">Valor (R$)</label>
+                <input v-model.number="txForm.amount" required type="number" step="0.01" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">Data</label>
+                <input v-model="txForm.date" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
+              </div>
             </div>
 
             <!-- Categoria e Subgrupo -->
@@ -449,7 +597,12 @@
         <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
           <form @submit.prevent="saveCategory" class="space-y-4 text-sm">
             <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">{{ editingCategoryId ? 'Editar Categoria' : 'Nova Categoria' }}</h3>
-            <div><label class="block font-semibold mb-1">Nome da Categoria</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Nome da Categoria</label>
+              <input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+            </div>
+            
             <div>
               <label class="block font-semibold mb-1">Tipo</label>
               <select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
@@ -458,7 +611,12 @@
                 <option value="variable_expense">Custo Variável</option>
               </select>
             </div>
-            <div><label class="block font-semibold mb-1">Ícone (Emoji)</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Ícone (Emoji)</label>
+              <input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+            </div>
+            
             <div class="flex justify-end gap-2 pt-4">
               <button @click="closeCategoryModal" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
               <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
@@ -467,17 +625,98 @@
         </div>
       </div>
 
-      <!-- Modais Configuração (Conta, Cartão, Datas Fatura) -->
-      <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveAccount" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingAccountId ? 'Editar Conta' : 'Nova Conta' }}</h3><div><label class="block font-semibold mb-1">Nome</label><input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Saldo Inicial</label><input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-2"><button @click="activeModal = null; editingAccountId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
-      <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCard" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCardId ? 'Editar Cartão' : 'Novo Cartão' }}</h3><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Apelido</label><input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Banco</label><input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Dia Fechamento</label><input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Dia Vencimento</label><input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="flex justify-end gap-2 pt-2"><button @click="activeModal = null; editingCardId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
-      <div v-if="activeModal === 'invoice_dates'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveInvoiceDates" class="space-y-4 text-sm"><h3 class="text-lg font-bold text-slate-900 dark:text-white">Ajustar Datas Específicas</h3><p class="text-xs text-slate-500 mb-4">Estas datas valerão apenas para a fatura de <b>{{ currentMonthFormatted }}</b> deste cartão.</p><div><label class="block font-semibold mb-1">Data Real de Fechamento</label><input v-model="invoiceDateForm.closingDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Data Real de Vencimento</label><input v-model="invoiceDateForm.dueDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar Exceção</button></div></form></div></div>
+      <!-- ================= MODAL CONTA ================= -->
+      <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
+          <form @submit.prevent="saveAccount" class="space-y-4 text-sm">
+            <h3 class="text-lg font-bold">{{ editingAccountId ? 'Editar Conta' : 'Nova Conta' }}</h3>
+            
+            <div>
+              <label class="block font-semibold mb-1">Nome</label>
+              <input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Saldo Inicial</label>
+              <input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+            </div>
+            
+            <div class="flex justify-end gap-2 pt-2">
+              <button @click="activeModal = null; editingAccountId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
+              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ================= MODAL CARTÃO ================= -->
+      <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
+          <form @submit.prevent="saveCard" class="space-y-4 text-sm">
+            <h3 class="text-lg font-bold">{{ editingCardId ? 'Editar Cartão' : 'Novo Cartão' }}</h3>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-semibold mb-1">Apelido</label>
+                <input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+              </div>
+              <div>
+                <label class="block font-semibold mb-1">Banco</label>
+                <input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-semibold mb-1">Dia Fechamento</label>
+                <input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+              </div>
+              <div>
+                <label class="block font-semibold mb-1">Dia Vencimento</label>
+                <input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+              </div>
+            </div>
+            
+            <div class="flex justify-end gap-2 pt-2">
+              <button @click="activeModal = null; editingCardId = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
+              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ================= MODAL AJUSTE DE DATAS DA FATURA ================= -->
+      <div v-if="activeModal === 'invoice_dates'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
+          <form @submit.prevent="saveInvoiceDates" class="space-y-4 text-sm">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Ajustar Datas Específicas</h3>
+            <p class="text-xs text-slate-500 mb-4">Estas datas valerão apenas para a fatura de <b>{{ currentMonthFormatted }}</b> deste cartão.</p>
+            
+            <div>
+              <label class="block font-semibold mb-1">Data Real de Fechamento</label>
+              <input v-model="invoiceDateForm.closingDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+            </div>
+            
+            <div>
+              <label class="block font-semibold mb-1">Data Real de Vencimento</label>
+              <input v-model="invoiceDateForm.dueDate" required type="date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg">
+            </div>
+            
+            <div class="flex justify-end gap-2 pt-4">
+              <button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button>
+              <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar Exceção</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
     </div>
   </div>
 
   <script>
     // ==================================================================
-    // CHAVES DO FIREBASE
+    // CONFIGURAÇÃO DO FIREBASE
+    // ==================================================================
     const firebaseConfig = {
       apiKey: "AIzaSyC7aPuuv3OjoeaoRkdn3o7hyyjYnZBolHU",
       authDomain: "fluxo-financeiro-1ee39.firebaseapp.com",
@@ -491,17 +730,22 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-    // ==================================================================
 
     const { createApp, ref, computed, watch, onMounted, nextTick } = Vue;
 
     createApp({
       setup() {
+        // ================= ESTADO GLOBAL =================
         const appName = ref('Fluxo');
+        
+        // Autenticação
         const isAuthenticated = ref(false);
         const isLoggingIn = ref(false);
-        const loginEmail = ref(''); const loginPassword = ref(''); const loginError = ref('');
+        const loginEmail = ref(''); 
+        const loginPassword = ref(''); 
+        const loginError = ref('');
 
+        // Navegação e Modais
         const currentTab = ref('dashboard');
         const currentDate = ref(new Date()); 
         const activeModal = ref(null);
@@ -511,172 +755,34 @@
         const tabs = [
           { id: 'dashboard', name: 'Dashboard' }, 
           { id: 'transactions', name: 'Lançamentos' },
+          { id: 'installments', name: 'Parcelas' },
           { id: 'categories', name: 'Categorias' },
           { id: 'accounts', name: 'Contas & Cartões' }, 
           { id: 'reports', name: 'Relatórios' }
         ];
         
+        // Dados da Base de Dados
         const accounts = ref([]);
         const creditCards = ref([]);
         const categories = ref([]);
         const transactions = ref([]);
         const invoiceExceptions = ref({}); 
 
-        // NOVO: Listas Computadas para agrupar as Categorias
+        // ================= PROPRIEDADES COMPUTADAS =================
+        
+        // Categorias Agrupadas
         const incomeCategories = computed(() => categories.value.filter(c => c.type === 'income'));
         const fixedExpenseCategories = computed(() => categories.value.filter(c => c.type === 'fixed_expense'));
         const variableExpenseCategories = computed(() => categories.value.filter(c => c.type === 'variable_expense'));
 
-        const editingTxId = ref(null);
-        const txForm = ref({ description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: '', subCategory: '', owner: 'meu', accountId: '', cardId: '', isPaid: true });
-        const txPaymentMethod = ref('account');
-        const isInstallmentCheckbox = ref(false);
-        const txInstallmentsCount = ref(2);
-        const isRecurringCheckbox = ref(false);
-        const recurringCount = ref(2);
-
-        const editingCategoryId = ref(null);
-        const categoryForm = ref({ name: '', type: 'variable_expense', icon: '📌' });
-
-        const editingAccountId = ref(null);
-        const accountForm = ref({ name: '', balance: 0, color: '#3b82f6' });
-        const editingCardId = ref(null);
-        const cardForm = ref({ name: '', bank: '', closingDay: 1, dueDay: 1, color: '#8b5cf6' });
-        const selectedReportCard = ref('');
-        const invoiceDateForm = ref({ closingDate: '', dueDate: '' });
-
-        const handleLogin = async () => { 
-          isLoggingIn.value = true; loginError.value = '';
-          try { await auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value); } 
-          catch (error) { loginError.value = 'As credenciais estão incorretas. Tente novamente.'; isLoggingIn.value = false; }
-        };
-
-        const handleGoogleLogin = async () => {
-          isLoggingIn.value = true; loginError.value = '';
-          const provider = new firebase.auth.GoogleAuthProvider();
-          try { await auth.signInWithPopup(provider); } 
-          catch (error) { console.error("Erro Google:", error); loginError.value = "Erro na janela do Google. Tente novamente."; isLoggingIn.value = false; }
-        };
-
-        const handleLogout = async () => {
-          try { await auth.signOut(); accounts.value = []; categories.value = []; transactions.value = []; } catch (error) {}
-        };
-
-        const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
-        const formatDateBr = (dateStr) => { if (!dateStr) return ''; const [y, m, d] = dateStr.split('-'); return `${d}/${m}/${y}`; };
-        
-        const currentMonthFormatted = computed(() => {
-          const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-          return `${months[currentDate.value.getMonth()]} ${currentDate.value.getFullYear()}`;
-        });
-
-        const changeMonth = (delta) => {
-          const newDate = new Date(currentDate.value);
-          newDate.setMonth(newDate.getMonth() + delta);
-          currentDate.value = newDate;
-          nextTick(() => renderCharts());
-        };
-
-        const initializeStorage = () => {
-          db.ref('fluxoData').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-              accounts.value = data.accounts || []; 
-              creditCards.value = data.creditCards || []; 
-              categories.value = data.categories || []; 
-              transactions.value = data.transactions || [];
-              invoiceExceptions.value = data.invoiceExceptions || {}; 
-              nextTick(() => renderCharts());
-            }
-          });
-        };
-
-        const saveToStorage = async () => {
-          const payload = { accounts: accounts.value, creditCards: creditCards.value, categories: categories.value, transactions: transactions.value, invoiceExceptions: invoiceExceptions.value };
-          try { await db.ref('fluxoData').set(payload); } catch (e) { console.error("Erro a guardar:", e); }
-        };
-
-        const openModal = (type) => { 
-          activeModal.value = type; 
-          if(type === 'transaction') {
-            editingTxId.value = null;
-            txForm.value = { description: '', amount: null, date: new Date().toISOString().split('T')[0], type: 'expense', categoryId: categories.value[0]?.id || '', subCategory: '', owner: 'meu', accountId: accounts.value[0]?.id || '', cardId: creditCards.value[0]?.id || '', isPaid: true };
-            txPaymentMethod.value = 'account'; isInstallmentCheckbox.value = false; isRecurringCheckbox.value = false;
-          } else if (type === 'category') {
-            editingCategoryId.value = null;
-            categoryForm.value = { name: '', type: 'variable_expense', icon: '📌' };
-          }
-        };
-
-        // ================= TRANSAÇÕES =================
-        const editTransaction = (item) => {
-          editingTxId.value = item.id;
-          txForm.value = { ...item };
-          txPaymentMethod.value = item.cardId ? 'card' : 'account';
-          activeModal.value = 'transaction';
-        };
-
-        const saveTransaction = () => {
-          let baseDate = new Date(txForm.value.date + 'T00:00:00');
-          let totalAmount = Number(txForm.value.amount);
-          
-          if (editingTxId.value) {
-            const index = transactions.value.findIndex(t => t.id === editingTxId.value);
-            if (index !== -1) {
-              transactions.value[index] = { ...transactions.value[index], ...txForm.value, amount: totalAmount, cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null };
-            }
-          } else {
-            if (txForm.value.type === 'expense' && txPaymentMethod.value === 'card' && isInstallmentCheckbox.value && txInstallmentsCount.value > 1) {
-              let installmentAmount = parseFloat((totalAmount / txInstallmentsCount.value).toFixed(2));
-              for (let i = 0; i < txInstallmentsCount.value; i++) {
-                let d = new Date(baseDate); d.setMonth(d.getMonth() + i);
-                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-                
-                transactions.value.push({
-                  id: 'tx_' + Date.now() + '_' + i,
-                  description: `${txForm.value.description} (${i+1}/${txInstallmentsCount.value})`,
-                  amount: installmentAmount, date: dateStr, type: txForm.value.type, categoryId: txForm.value.categoryId,
-                  subCategory: txForm.value.subCategory, owner: txForm.value.owner, isPaid: txForm.value.isPaid,
-                  cardId: txForm.value.cardId
-                });
-              }
-            } else if (isRecurringCheckbox.value && recurringCount.value > 1) {
-              for (let i = 0; i < recurringCount.value; i++) {
-                let d = new Date(baseDate); d.setMonth(d.getMonth() + i);
-                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-                
-                transactions.value.push({ id: 'tx_' + Date.now() + '_' + i, ...txForm.value, amount: totalAmount, date: dateStr, cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null });
-              }
-            } else {
-              transactions.value.push({ id: 'tx_' + Date.now(), ...txForm.value, amount: totalAmount, cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null });
-            }
-          }
-          saveToStorage(); activeModal.value = null; editingTxId.value = null; nextTick(() => renderCharts()); 
-        };
-
-        const deleteTransaction = (id) => { if(confirm("Excluir lançamento?")) { transactions.value = transactions.value.filter(t => t.id !== id); saveToStorage(); nextTick(() => renderCharts()); } };
-
-        // ================= CATEGORIAS =================
-        const openCategoryFromTransaction = () => { previousModal.value = 'transaction'; categoryForm.value = { name: '', type: txForm.value.type === 'income' ? 'income' : 'variable_expense', icon: '📌' }; activeModal.value = 'category'; };
-        const closeCategoryModal = () => { if (previousModal.value === 'transaction') { activeModal.value = 'transaction'; previousModal.value = null; } else { activeModal.value = null; editingCategoryId.value = null; } };
-        const editCategory = (cat) => { editingCategoryId.value = cat.id; categoryForm.value = { ...cat }; activeModal.value = 'category'; };
-        const saveCategory = () => {
-          if (editingCategoryId.value) {
-            const index = categories.value.findIndex(c => c.id === editingCategoryId.value);
-            if (index !== -1) categories.value[index] = { ...categories.value[index], ...categoryForm.value };
-          } else {
-            const newId = 'cat_' + Date.now();
-            categories.value.push({ id: newId, ...categoryForm.value });
-            if (previousModal.value === 'transaction') txForm.value.categoryId = newId;
-          }
-          saveToStorage(); closeCategoryModal();
-        };
-        const deleteCategory = (id) => { if (transactions.value.some(t => t.categoryId === id)) { alert("Categoria em uso. Não pode ser excluída."); return; } if(confirm("Excluir categoria?")) { categories.value = categories.value.filter(c => c.id !== id); saveToStorage(); } };
-
-        // ================= FILTROS E MÉTRICAS =================
+        // Filtro Lançamentos
         const currentMonthTransactions = computed(() => {
-          const y = currentDate.value.getFullYear(); const m = currentDate.value.getMonth();
-          return transactions.value.filter(t => { const dt = new Date(t.date + 'T00:00:00'); return dt.getFullYear() === y && dt.getMonth() === m; });
+          const y = currentDate.value.getFullYear(); 
+          const m = currentDate.value.getMonth();
+          return transactions.value.filter(t => {
+            const dt = new Date(t.date + 'T00:00:00');
+            return dt.getFullYear() === y && dt.getMonth() === m;
+          });
         });
 
         const filteredTransactions = computed(() => {
@@ -686,6 +792,7 @@
           }).sort((a,b) => b.date.localeCompare(a.date));
         });
 
+        // Dashboard Metrics
         const monthMetrics = computed(() => {
           let incomeRealized = 0, expenseRealized = 0;
           currentMonthTransactions.value.forEach(t => {
@@ -696,108 +803,397 @@
         });
 
         const totalAccountsBalance = computed(() => accounts.value.reduce((acc, curr) => acc + Number(curr.balance), 0));
-        const getCategoryName = (id) => categories.value.find(c => c.id === id)?.name || 'Geral';
-        const availableCategories = computed(() => categories.value.filter(c => txForm.value.type === 'income' ? c.type === 'income' : c.type !== 'income'));
-
-        // ================= RELATÓRIO DE FATURA =================
-        const getDateStr = (cardId, year, month, type) => {
-          const periodKey = `${cardId}_${year}-${String(month+1).padStart(2,'0')}`;
-          const exc = invoiceExceptions.value[periodKey];
-          if (exc && exc[type]) return exc[type];
-          const card = creditCards.value.find(c => c.id === cardId);
-          const day = card ? (type === 'closingDate' ? card.closingDay : card.dueDay) : 1;
-          return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        };
-
-        const currentInvoiceDetails = computed(() => {
-          if (!selectedReportCard.value) return { closingDate: '', dueDate: '' };
-          const targetY = currentDate.value.getFullYear(); const targetM = currentDate.value.getMonth();
-          return { closingDate: getDateStr(selectedReportCard.value, targetY, targetM, 'closingDate'), dueDate: getDateStr(selectedReportCard.value, targetY, targetM, 'dueDate') };
+        
+        // Agrupamento de Parcelas
+        const installmentsByCard = computed(() => {
+           const grouped = {};
+           creditCards.value.forEach(c => grouped[c.id] = { card: c, items: [], total: 0 });
+           
+           currentMonthTransactions.value.forEach(t => {
+               if (t.totalInstallments > 1 && t.cardId && grouped[t.cardId]) {
+                   grouped[t.cardId].items.push(t);
+                   grouped[t.cardId].total += Number(t.amount);
+               }
+           });
+           
+           return Object.values(grouped).filter(g => g.items.length > 0);
         });
 
-        const invoiceTransactions = computed(() => {
-          if (!selectedReportCard.value) return [];
-          const cardId = selectedReportCard.value;
-          const targetY = currentDate.value.getFullYear(); const targetM = currentDate.value.getMonth();
-          let prevY = targetY; let prevM = targetM - 1; if (prevM < 0) { prevM = 11; prevY--; }
-          const prevClosingStr = getDateStr(cardId, prevY, prevM, 'closingDate');
-          const currClosingStr = getDateStr(cardId, targetY, targetM, 'closingDate');
+        // ================= ESTADO DOS FORMULÁRIOS =================
+        
+        // Formulário de Transação
+        const editingTxId = ref(null);
+        const txForm = ref({ 
+          description: '', amount: null, date: new Date().toISOString().split('T')[0], 
+          type: 'expense', categoryId: '', subCategory: '', owner: 'meu', 
+          accountId: '', cardId: '', isPaid: true 
+        });
+        const txPaymentMethod = ref('account');
+        const isInstallmentCheckbox = ref(false); 
+        const txInstallmentsCount = ref(2);
+        const isRecurringCheckbox = ref(false); 
+        const recurringCount = ref(2);
 
-          return transactions.value.filter(t => {
-            if (t.cardId !== cardId || t.type !== 'expense') return false;
-            return t.date >= prevClosingStr && t.date < currClosingStr;
-          }).sort((a,b) => a.date.localeCompare(b.date));
+        // Formulário de Categoria
+        const editingCategoryId = ref(null); 
+        const categoryForm = ref({ name: '', type: 'variable_expense', icon: '📌' });
+        
+        // Formulário Conta/Cartão/Fatura
+        const editingAccountId = ref(null); 
+        const accountForm = ref({ name: '', balance: 0, color: '#3b82f6' });
+        const editingCardId = ref(null); 
+        const cardForm = ref({ name: '', bank: '', closingDay: 1, dueDay: 1, color: '#8b5cf6' });
+        
+        const selectedReportCard = ref(''); 
+        const invoiceDateForm = ref({ closingDate: '', dueDate: '' });
+
+        // ================= FUNÇÕES GERAIS E AUTENTICAÇÃO =================
+        
+        const handleLogin = async () => { 
+          isLoggingIn.value = true; 
+          loginError.value = ''; 
+          try { 
+            await auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value); 
+          } catch (error) { 
+            loginError.value = 'Credenciais incorretas.'; 
+            isLoggingIn.value = false; 
+          } 
+        };
+
+        const handleGoogleLogin = async () => { 
+          isLoggingIn.value = true; 
+          loginError.value = ''; 
+          const provider = new firebase.auth.GoogleAuthProvider(); 
+          try { 
+            await auth.signInWithPopup(provider); 
+          } catch (error) { 
+            loginError.value = "Erro no Google."; 
+            isLoggingIn.value = false; 
+          } 
+        };
+
+        const handleLogout = async () => { 
+          try { 
+            await auth.signOut(); 
+            accounts.value = []; categories.value = []; transactions.value = []; 
+          } catch (error) {} 
+        };
+
+        const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+        
+        const formatDateBr = (dateStr) => { 
+          if (!dateStr) return ''; 
+          const [y, m, d] = dateStr.split('-'); 
+          return `${d}/${m}/${y}`; 
+        };
+
+        const changeMonth = (delta) => { 
+          const newDate = new Date(currentDate.value); 
+          newDate.setMonth(newDate.getMonth() + delta); 
+          currentDate.value = newDate; 
+          nextTick(() => renderCharts()); 
+        };
+
+        const getCategoryName = (id) => categories.value.find(c => c.id === id)?.name || 'Geral';
+        
+        const availableCategories = computed(() => categories.value.filter(c => txForm.value.type === 'income' ? c.type === 'income' : c.type !== 'income'));
+
+        // ================= FIREBASE SYNC =================
+        const initializeStorage = () => { 
+          db.ref('fluxoData').on('value', (snapshot) => { 
+            const data = snapshot.val(); 
+            if (data) { 
+              accounts.value = data.accounts || []; 
+              creditCards.value = data.creditCards || []; 
+              categories.value = data.categories || []; 
+              transactions.value = data.transactions || []; 
+              invoiceExceptions.value = data.invoiceExceptions || {}; 
+              nextTick(() => renderCharts()); 
+            } 
+          }); 
+        };
+
+        const saveToStorage = async () => { 
+          const payload = { 
+            accounts: accounts.value, creditCards: creditCards.value, 
+            categories: categories.value, transactions: transactions.value, 
+            invoiceExceptions: invoiceExceptions.value 
+          }; 
+          try { await db.ref('fluxoData').set(payload); } catch (e) {} 
+        };
+
+        // ================= GESTÃO DE MODAIS =================
+        const openModal = (type) => { 
+          activeModal.value = type; 
+          if(type === 'transaction') { 
+            editingTxId.value = null; 
+            txForm.value = { 
+              description: '', amount: null, date: new Date().toISOString().split('T')[0], 
+              type: 'expense', categoryId: categories.value[0]?.id || '', subCategory: '', 
+              owner: 'meu', accountId: accounts.value[0]?.id || '', 
+              cardId: creditCards.value[0]?.id || '', isPaid: true 
+            }; 
+            txPaymentMethod.value = 'account'; 
+            isInstallmentCheckbox.value = false; 
+            isRecurringCheckbox.value = false; 
+          } else if (type === 'category') { 
+            editingCategoryId.value = null; 
+            categoryForm.value = { name: '', type: 'variable_expense', icon: '📌' }; 
+          } 
+        };
+
+        // ================= FUNÇÕES DE TRANSAÇÃO (O MOTOR PRINCIPAL) =================
+        
+        const editTransaction = (item) => { 
+          editingTxId.value = item.id; 
+          txForm.value = { ...item }; 
+          txPaymentMethod.value = item.cardId ? 'card' : 'account'; 
+          activeModal.value = 'transaction'; 
+        };
+
+        const saveTransaction = () => {
+          let baseDate = new Date(txForm.value.date + 'T00:00:00'); 
+          let totalAmount = Number(txForm.value.amount);
+          
+          if (editingTxId.value) {
+            // Edição
+            const index = transactions.value.findIndex(t => t.id === editingTxId.value);
+            if (index !== -1) {
+              transactions.value[index] = { 
+                ...transactions.value[index], ...txForm.value, amount: totalAmount, 
+                cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null 
+              };
+            }
+          } else {
+            // Criação com Lógica de Parcelamento
+            if (txForm.value.type === 'expense' && txPaymentMethod.value === 'card' && isInstallmentCheckbox.value && txInstallmentsCount.value > 1) {
+              let installmentAmount = parseFloat((totalAmount / txInstallmentsCount.value).toFixed(2));
+              let groupId = 'grp_' + Date.now(); // Identificador único para a compra parcelada
+              
+              for (let i = 0; i < txInstallmentsCount.value; i++) {
+                let d = new Date(baseDate); 
+                d.setMonth(d.getMonth() + i);
+                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                
+                transactions.value.push({ 
+                  id: 'tx_' + Date.now() + '_' + i, 
+                  description: txForm.value.description, 
+                  amount: installmentAmount, 
+                  date: dateStr, 
+                  type: txForm.value.type, 
+                  categoryId: txForm.value.categoryId, 
+                  subCategory: txForm.value.subCategory, 
+                  owner: txForm.value.owner, 
+                  isPaid: txForm.value.isPaid, 
+                  cardId: txForm.value.cardId, 
+                  installmentIndex: i + 1, 
+                  totalInstallments: txInstallmentsCount.value, 
+                  groupId: groupId 
+                });
+              }
+            } 
+            // Criação de Lançamento Fixo/Recorrente
+            else if (isRecurringCheckbox.value && recurringCount.value > 1) {
+              for (let i = 0; i < recurringCount.value; i++) {
+                let d = new Date(baseDate); 
+                d.setMonth(d.getMonth() + i); 
+                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                
+                transactions.value.push({ 
+                  id: 'tx_' + Date.now() + '_' + i, ...txForm.value, 
+                  amount: totalAmount, date: dateStr, 
+                  cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null 
+                });
+              }
+            } 
+            // Compra Normal à Vista
+            else { 
+              transactions.value.push({ 
+                id: 'tx_' + Date.now(), ...txForm.value, 
+                amount: totalAmount, 
+                cardId: txPaymentMethod.value === 'card' ? txForm.value.cardId : null 
+              }); 
+            }
+          }
+          
+          saveToStorage(); 
+          activeModal.value = null; 
+          editingTxId.value = null; 
+          nextTick(() => renderCharts()); 
+        };
+
+        const deleteTransaction = (id) => { 
+          if(confirm("Excluir lançamento?")) { 
+            transactions.value = transactions.value.filter(t => t.id !== id); 
+            saveToStorage(); 
+            nextTick(() => renderCharts()); 
+          } 
+        };
+
+        // ================= FUNÇÕES DE CATEGORIAS =================
+        const openCategoryFromTransaction = () => { 
+          previousModal.value = 'transaction'; 
+          categoryForm.value = { name: '', type: txForm.value.type === 'income' ? 'income' : 'variable_expense', icon: '📌' }; 
+          activeModal.value = 'category'; 
+        };
+        
+        const closeCategoryModal = () => { 
+          if (previousModal.value === 'transaction') { 
+            activeModal.value = 'transaction'; previousModal.value = null; 
+          } else { 
+            activeModal.value = null; editingCategoryId.value = null; 
+          } 
+        };
+
+        const editCategory = (cat) => { 
+          editingCategoryId.value = cat.id; 
+          categoryForm.value = { ...cat }; 
+          activeModal.value = 'category'; 
+        };
+        
+        const saveCategory = () => { 
+          if (editingCategoryId.value) { 
+            const index = categories.value.findIndex(c => c.id === editingCategoryId.value); 
+            if (index !== -1) categories.value[index] = { ...categories.value[index], ...categoryForm.value }; 
+          } else { 
+            const newId = 'cat_' + Date.now(); 
+            categories.value.push({ id: newId, ...categoryForm.value }); 
+            if (previousModal.value === 'transaction') txForm.value.categoryId = newId; 
+          } 
+          saveToStorage(); 
+          closeCategoryModal(); 
+        };
+        
+        const deleteCategory = (id) => { 
+          if (transactions.value.some(t => t.categoryId === id)) { 
+            alert("Categoria em uso."); return; 
+          } 
+          if(confirm("Excluir categoria?")) { 
+            categories.value = categories.value.filter(c => c.id !== id); saveToStorage(); 
+          } 
+        };
+
+        // ================= FUNÇÕES DE CONTAS E CARTÕES =================
+        const editCard = (card) => { editingCardId.value = card.id; cardForm.value = { ...card }; activeModal.value = 'card'; }; 
+        const saveCard = () => { if (editingCardId.value) { const index = creditCards.value.findIndex(c => c.id === editingCardId.value); if (index !== -1) creditCards.value[index] = { ...creditCards.value[index], ...cardForm.value }; } else { creditCards.value.push({ id: 'card_' + Date.now(), ...cardForm.value }); } saveToStorage(); activeModal.value = null; editingCardId.value = null; }; 
+        const deleteCard = (id) => { if (transactions.value.some(t => t.cardId === id)) { alert("Cartão em uso."); return; } if(confirm("Excluir cartão?")) { creditCards.value = creditCards.value.filter(c => c.id !== id); saveToStorage(); } };
+
+        const editAccount = (acc) => { editingAccountId.value = acc.id; accountForm.value = { ...acc }; activeModal.value = 'account'; }; 
+        const saveAccount = () => { if (editingAccountId.value) { const index = accounts.value.findIndex(a => a.id === editingAccountId.value); if (index !== -1) accounts.value[index] = { ...accounts.value[index], ...accountForm.value }; } else { accounts.value.push({ id: 'acc_' + Date.now(), ...accountForm.value }); } saveToStorage(); activeModal.value = null; editingAccountId.value = null; }; 
+        const deleteAccount = (id) => { if (transactions.value.some(t => t.accountId === id)) { alert("Conta em uso."); return; } if(confirm("Excluir conta?")) { accounts.value = accounts.value.filter(a => a.id !== id); saveToStorage(); } };
+
+        // ================= LÓGICA DE RELATÓRIO E FATURAS =================
+        const getDateStr = (cardId, year, month, type) => { 
+          const periodKey = `${cardId}_${year}-${String(month+1).padStart(2,'0')}`; 
+          const exc = invoiceExceptions.value[periodKey]; 
+          if (exc && exc[type]) return exc[type]; 
+          const card = creditCards.value.find(c => c.id === cardId); 
+          const day = card ? (type === 'closingDate' ? card.closingDay : card.dueDay) : 1; 
+          return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; 
+        };
+
+        const currentInvoiceDetails = computed(() => { 
+          if (!selectedReportCard.value) return { closingDate: '', dueDate: '' }; 
+          const targetY = currentDate.value.getFullYear(); const targetM = currentDate.value.getMonth(); 
+          return { closingDate: getDateStr(selectedReportCard.value, targetY, targetM, 'closingDate'), dueDate: getDateStr(selectedReportCard.value, targetY, targetM, 'dueDate') }; 
+        });
+
+        const invoiceTransactions = computed(() => { 
+          if (!selectedReportCard.value) return []; 
+          const cardId = selectedReportCard.value; 
+          const targetY = currentDate.value.getFullYear(); const targetM = currentDate.value.getMonth(); 
+          let prevY = targetY; let prevM = targetM - 1; if (prevM < 0) { prevM = 11; prevY--; } 
+          const prevClosingStr = getDateStr(cardId, prevY, prevM, 'closingDate'); 
+          const currClosingStr = getDateStr(cardId, targetY, targetM, 'closingDate'); 
+          
+          return transactions.value.filter(t => { 
+            if (t.cardId !== cardId || t.type !== 'expense') return false; 
+            return t.date >= prevClosingStr && t.date < currClosingStr; 
+          }).sort((a,b) => a.date.localeCompare(b.date)); 
         });
 
         const invoiceTotal = computed(() => invoiceTransactions.value.reduce((sum, t) => sum + Number(t.amount), 0));
+        
+        // Filtros de Responsável para a Fatura
         const invoiceTotalMeu = computed(() => invoiceTransactions.value.filter(t => t.owner === 'meu' || !t.owner).reduce((sum, t) => sum + Number(t.amount), 0));
         const invoiceTotalPais = computed(() => invoiceTransactions.value.filter(t => t.owner === 'pais').reduce((sum, t) => sum + Number(t.amount), 0));
-
+        
         const openInvoiceDateModal = () => { invoiceDateForm.value = { ...currentInvoiceDetails.value }; activeModal.value = 'invoice_dates'; };
-        const saveInvoiceDates = () => {
-          const cardId = selectedReportCard.value; const targetY = currentDate.value.getFullYear(); const targetM = currentDate.value.getMonth();
-          const periodKey = `${cardId}_${targetY}-${String(targetM+1).padStart(2,'0')}`;
-          invoiceExceptions.value[periodKey] = { closingDate: invoiceDateForm.value.closingDate, dueDate: invoiceDateForm.value.dueDate };
-          saveToStorage(); activeModal.value = null;
+        const saveInvoiceDates = () => { 
+          const cardId = selectedReportCard.value; 
+          const targetY = currentDate.value.getFullYear(); 
+          const targetM = currentDate.value.getMonth(); 
+          const periodKey = `${cardId}_${targetY}-${String(targetM+1).padStart(2,'0')}`; 
+          invoiceExceptions.value[periodKey] = { closingDate: invoiceDateForm.value.closingDate, dueDate: invoiceDateForm.value.dueDate }; 
+          saveToStorage(); activeModal.value = null; 
         };
 
-        // Funções Contas e Cartões
-        const editCard = (card) => { editingCardId.value = card.id; cardForm.value = { ...card }; activeModal.value = 'card'; };
-        const saveCard = () => { if (editingCardId.value) { const index = creditCards.value.findIndex(c => c.id === editingCardId.value); if (index !== -1) creditCards.value[index] = { ...creditCards.value[index], ...cardForm.value }; } else { creditCards.value.push({ id: 'card_' + Date.now(), ...cardForm.value }); } saveToStorage(); activeModal.value = null; editingCardId.value = null; };
-        const deleteCard = (id) => { if (transactions.value.some(t => t.cardId === id)) { alert("Não é possível excluir. Possui lançamentos."); return; } if(confirm("Excluir cartão?")) { creditCards.value = creditCards.value.filter(c => c.id !== id); saveToStorage(); } };
-
-        const editAccount = (acc) => { editingAccountId.value = acc.id; accountForm.value = { ...acc }; activeModal.value = 'account'; };
-        const saveAccount = () => { if (editingAccountId.value) { const index = accounts.value.findIndex(a => a.id === editingAccountId.value); if (index !== -1) accounts.value[index] = { ...accounts.value[index], ...accountForm.value }; } else { accounts.value.push({ id: 'acc_' + Date.now(), ...accountForm.value }); } saveToStorage(); activeModal.value = null; editingAccountId.value = null; };
-        const deleteAccount = (id) => { if (transactions.value.some(t => t.accountId === id)) { alert("Não é possível excluir. Possui movimentações."); return; } if(confirm("Excluir conta?")) { accounts.value = accounts.value.filter(a => a.id !== id); saveToStorage(); } };
-
-        // ================= GRÁFICOS =================
+        // ================= GRÁFICOS DO DASHBOARD =================
         let flowChartInstance = null; let donutChartInstance = null;
-        const renderCharts = () => {
-          const flowCanvas = document.getElementById('flowHistoryChart');
-          if (flowCanvas) {
-            if (flowChartInstance) flowChartInstance.destroy();
-            flowChartInstance = new Chart(flowCanvas, { type: 'bar', data: { labels: ['Mês Atual'], datasets: [{ label: 'Receitas', data: [monthMetrics.value.incomeRealized], backgroundColor: '#10b981' }, { label: 'Despesas', data: [monthMetrics.value.expenseRealized], backgroundColor: '#f43f5e' }] }, options: { responsive: true, maintainAspectRatio: false } });
-          }
+        
+        const renderCharts = () => { 
+          const flowCanvas = document.getElementById('flowHistoryChart'); 
+          if (flowCanvas) { 
+            if (flowChartInstance) flowChartInstance.destroy(); 
+            flowChartInstance = new Chart(flowCanvas, { 
+              type: 'bar', 
+              data: { 
+                labels: ['Mês Atual'], 
+                datasets: [
+                  { label: 'Receitas', data: [monthMetrics.value.incomeRealized], backgroundColor: '#10b981' }, 
+                  { label: 'Despesas', data: [monthMetrics.value.expenseRealized], backgroundColor: '#f43f5e' }
+                ] 
+              }, 
+              options: { responsive: true, maintainAspectRatio: false } 
+            }); 
+          } 
           
-          const donutCanvas = document.getElementById('categoryDonutChart');
-          if (donutCanvas) {
-            if (donutChartInstance) donutChartInstance.destroy();
-            const catTotals = {};
-            currentMonthTransactions.value.forEach(t => {
-              if (t.type === 'expense') {
-                const catName = getCategoryName(t.categoryId);
-                catTotals[catName] = (catTotals[catName] || 0) + Number(t.amount);
-              }
-            });
-            const labels = Object.keys(catTotals); const data = Object.values(catTotals);
-            const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#10b981'];
-            if(labels.length > 0) {
-              donutChartInstance = new Chart(donutCanvas, { type: 'doughnut', data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } });
-            }
-          }
+          const donutCanvas = document.getElementById('categoryDonutChart'); 
+          if (donutCanvas) { 
+            if (donutChartInstance) donutChartInstance.destroy(); 
+            
+            const catTotals = {}; 
+            currentMonthTransactions.value.forEach(t => { 
+              if (t.type === 'expense') { 
+                const catName = getCategoryName(t.categoryId); 
+                catTotals[catName] = (catTotals[catName] || 0) + Number(t.amount); 
+              } 
+            }); 
+            
+            const labels = Object.keys(catTotals); 
+            const data = Object.values(catTotals); 
+            const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#10b981']; 
+            
+            if(labels.length > 0) { 
+              donutChartInstance = new Chart(donutCanvas, { 
+                type: 'doughnut', 
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] }, 
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } 
+              }); 
+            } 
+          } 
         };
 
         watch(currentTab, (newTab) => { if (newTab === 'dashboard') nextTick(() => renderCharts()); });
-
-        onMounted(() => {
-          auth.onAuthStateChanged((user) => {
+        
+        onMounted(() => { 
+          auth.onAuthStateChanged((user) => { 
             if (user) { isAuthenticated.value = true; isLoggingIn.value = false; initializeStorage(); } 
-            else { isAuthenticated.value = false; isLoggingIn.value = false; }
-          });
+            else { isAuthenticated.value = false; isLoggingIn.value = false; } 
+          }); 
         });
 
-        return {
-          appName, isAuthenticated, isLoggingIn, loginEmail, loginPassword, loginError, handleLogin, handleGoogleLogin, handleLogout,
-          currentTab, tabs, currentMonthFormatted, changeMonth, formatCurrency, formatDateBr, searchQuery,
-          accounts, creditCards, categories, transactions, totalAccountsBalance, monthMetrics, filteredTransactions, getCategoryName, availableCategories,
-          incomeCategories, fixedExpenseCategories, variableExpenseCategories,
+        return { 
+          appName, isAuthenticated, isLoggingIn, loginEmail, loginPassword, loginError, handleLogin, handleGoogleLogin, handleLogout, 
+          currentTab, tabs, currentMonthFormatted, changeMonth, formatCurrency, formatDateBr, searchQuery, 
+          accounts, creditCards, categories, transactions, totalAccountsBalance, monthMetrics, filteredTransactions, installmentsByCard, getCategoryName, availableCategories, incomeCategories, fixedExpenseCategories, variableExpenseCategories, 
           activeModal, openModal, 
-          editingTxId, txForm, txPaymentMethod, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount, saveTransaction, deleteTransaction, editTransaction,
-          editingCategoryId, categoryForm, saveCategory, openCategoryFromTransaction, closeCategoryModal, editCategory, deleteCategory,
-          editingAccountId, accountForm, editAccount, saveAccount, deleteAccount,
-          editingCardId, cardForm, editCard, saveCard, deleteCard,
-          selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais,
-          invoiceDateForm, openInvoiceDateModal, saveInvoiceDates
+          editingTxId, txForm, txPaymentMethod, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount, saveTransaction, deleteTransaction, editTransaction, 
+          editingCategoryId, categoryForm, saveCategory, openCategoryFromTransaction, closeCategoryModal, editCategory, deleteCategory, 
+          editingAccountId, accountForm, editAccount, saveAccount, deleteAccount, 
+          editingCardId, cardForm, editCard, saveCard, deleteCard, 
+          selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais, 
+          invoiceDateForm, openInvoiceDateModal, saveInvoiceDates 
         };
       }
     }).mount('#app');
