@@ -34,7 +34,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 
-  <!-- BIBLIOTECA PARA EXPORTAR PDF -->
+  <!-- Biblioteca html2pdf.js para exportação de PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Google Fonts: Inter -->
@@ -49,12 +49,13 @@
     ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.6); }
 
-    /* CSS EXCLUSIVO PARA IMPRESSÃO LIMPA */
+    /* CSS para Impressão limpa do Relatório */
     @media print {
       body * { visibility: hidden; }
       #invoice-report-content, #invoice-report-content * { visibility: visible; }
-      #invoice-report-content { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+      #invoice-report-content { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
       .no-print { display: none !important; }
+      body { background-color: white; }
     }
   </style>
 </head>
@@ -128,7 +129,6 @@
               </button>
             </div>
 
-            <!-- Botão Theme -->
             <button @click="toggleTheme" class="p-2 text-slate-500 hover:text-indigo-600 transition" title="Alternar Tema">
               <svg v-if="isDark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
               <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
@@ -140,7 +140,6 @@
               <span class="sm:hidden">Novo</span>
             </button>
 
-            <!-- Botão Sair -->
             <button @click="handleLogout" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition" title="Sair">Sair</button>
           </div>
         </div>
@@ -443,7 +442,7 @@
           </div>
         </section>
 
-        <!-- ================= TAB: RELATÓRIOS (PDF e IMPRIMIR) ================= -->
+        <!-- ================= TAB: RELATÓRIOS (FILTROS CLICÁVEIS E EXPORTAÇÃO PDF/PRINT) ================= -->
         <section v-if="currentTab === 'reports'" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             
@@ -452,19 +451,24 @@
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white">Extrato Detalhado da Fatura</h2>
                 <p class="text-sm text-slate-500">Mês de Referência: <span class="font-bold text-indigo-500">{{ currentMonthFormatted }}</span></p>
               </div>
-              <div class="flex gap-2 w-full sm:w-auto no-print">
-                <select v-model="selectedReportCard" class="w-full sm:w-64 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
+              <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto no-print">
+                <select v-model="selectedReportCard" class="w-full sm:w-80 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
                   <option value="">Selecione um Cartão...</option>
                   <option v-for="c in creditCards" :key="c.id" :value="c.id">{{ c.name }} ({{ c.bank }})</option>
                 </select>
                 <!-- BOTÕES DE IMPRIMIR E PDF -->
-                <button v-if="selectedReportCard" @click="printReport" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition border border-slate-200 dark:border-slate-700" title="Imprimir Relatório">🖨️</button>
-                <button v-if="selectedReportCard" @click="exportPDF" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition" title="Exportar para PDF">📄 PDF</button>
+                <button v-if="selectedReportCard" @click="printReport" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-2 font-semibold" title="Imprimir Relatório">
+                  🖨️ <span class="sm:hidden lg:inline">Imprimir</span>
+                </button>
+                <button v-if="selectedReportCard" @click="exportPDF" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition shadow-md flex items-center justify-center gap-2 font-bold" title="Exportar para PDF">
+                  📄 PDF
+                </button>
               </div>
             </div>
 
-            <!-- AREA DO RELATÓRIO A SER EXPORTADA PARA PDF/IMPRESSÃO -->
+            <!-- ENVOLVEMOS A ÁREA DO RELATÓRIO COM O ID PARA EXPORTAÇÃO -->
             <div v-if="selectedReportCard" id="invoice-report-content" class="bg-white dark:bg-slate-900 rounded-xl p-2 sm:p-0">
+              <!-- Divisão de Custos da Fatura (SÃO BOTÕES CLICÁVEIS) -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <!-- Filtro Meu -->
                 <div @click="invoiceFilter = 'meu'" :class="['p-4 rounded-xl border transition cursor-pointer', invoiceFilter === 'meu' ? 'bg-indigo-50 dark:bg-indigo-900/40 border-indigo-500 ring-2 ring-indigo-500/50' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-400']">
@@ -500,7 +504,7 @@
                 </button>
               </div>
 
-              <!-- Tabela de Lançamentos da Fatura -->
+              <!-- Tabela de Lançamentos da Fatura (USA A LISTA FILTRADA) -->
               <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
                 <table class="w-full text-left text-sm">
                   <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
