@@ -34,6 +34,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 
+  <!-- BIBLIOTECA PARA EXPORTAR PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,6 +48,14 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.6); }
+
+    /* CSS EXCLUSIVO PARA IMPRESSÃO LIMPA */
+    @media print {
+      body * { visibility: hidden; }
+      #invoice-report-content, #invoice-report-content * { visibility: visible; }
+      #invoice-report-content { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
@@ -92,7 +103,7 @@
     <div v-else class="flex flex-col min-h-screen w-full">
       
       <!-- Top Navigation Bar -->
-      <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3.5">
+      <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3.5 no-print">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 overflow-hidden p-1.5">
@@ -432,7 +443,7 @@
           </div>
         </section>
 
-        <!-- ================= TAB: RELATÓRIOS (FILTROS CLICÁVEIS) ================= -->
+        <!-- ================= TAB: RELATÓRIOS (PDF e IMPRIMIR) ================= -->
         <section v-if="currentTab === 'reports'" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             
@@ -441,14 +452,19 @@
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white">Extrato Detalhado da Fatura</h2>
                 <p class="text-sm text-slate-500">Mês de Referência: <span class="font-bold text-indigo-500">{{ currentMonthFormatted }}</span></p>
               </div>
-              <select v-model="selectedReportCard" class="w-full sm:w-80 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
-                <option value="">Selecione um Cartão...</option>
-                <option v-for="c in creditCards" :key="c.id" :value="c.id">{{ c.name }} ({{ c.bank }})</option>
-              </select>
+              <div class="flex gap-2 w-full sm:w-auto no-print">
+                <select v-model="selectedReportCard" class="w-full sm:w-64 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm">
+                  <option value="">Selecione um Cartão...</option>
+                  <option v-for="c in creditCards" :key="c.id" :value="c.id">{{ c.name }} ({{ c.bank }})</option>
+                </select>
+                <!-- BOTÕES DE IMPRIMIR E PDF -->
+                <button v-if="selectedReportCard" @click="printReport" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition border border-slate-200 dark:border-slate-700" title="Imprimir Relatório">🖨️</button>
+                <button v-if="selectedReportCard" @click="exportPDF" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition" title="Exportar para PDF">📄 PDF</button>
+              </div>
             </div>
 
-            <div v-if="selectedReportCard">
-              <!-- Divisão de Custos da Fatura (AGORA SÃO BOTÕES CLICÁVEIS) -->
+            <!-- AREA DO RELATÓRIO A SER EXPORTADA PARA PDF/IMPRESSÃO -->
+            <div v-if="selectedReportCard" id="invoice-report-content" class="bg-white dark:bg-slate-900 rounded-xl p-2 sm:p-0">
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <!-- Filtro Meu -->
                 <div @click="invoiceFilter = 'meu'" :class="['p-4 rounded-xl border transition cursor-pointer', invoiceFilter === 'meu' ? 'bg-indigo-50 dark:bg-indigo-900/40 border-indigo-500 ring-2 ring-indigo-500/50' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-400']">
@@ -479,12 +495,12 @@
                     <span class="font-bold text-slate-900 dark:text-white">{{ formatDate(currentInvoiceDetails.dueDate) }}</span>
                   </div>
                 </div>
-                <button @click="openInvoiceDateModal" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition">
+                <button @click="openInvoiceDateModal" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition no-print">
                   Ajustar Exceção de Datas
                 </button>
               </div>
 
-              <!-- Tabela de Lançamentos da Fatura (AGORA USA A LISTA FILTRADA) -->
+              <!-- Tabela de Lançamentos da Fatura -->
               <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
                 <table class="w-full text-left text-sm">
                   <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
@@ -496,7 +512,7 @@
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                    <tr v-for="item in filteredInvoiceTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40">
+                    <tr v-for="item in filteredInvoiceTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800/50">
                       <td class="py-3 px-4 text-xs text-slate-500">{{ formatDate(item.date) }}</td>
                       <td class="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">
                         {{ item.description }}
@@ -622,7 +638,7 @@
   <script>
     // AQUI INICIA A INTEGRAÇÃO COM O FIREBASE ==========================
     const firebaseConfig = {
-      apiKey: "AIzaSyC7aPuuv3OjoeaoRkdn3o7hyyjYnZBolHU",
+      apiKey: "AIzaSyC7aPuuv3OjoOeaRkdn3o7hyyJYnZBolHU",
       authDomain: "fluxo-financeiro-1ee39.firebaseapp.com",
       databaseURL: "https://fluxo-financeiro-1ee39-default-rtdb.firebaseio.com",
       projectId: "fluxo-financeiro-1ee39",
@@ -681,7 +697,6 @@
         const editingAccountId = ref(null);
         const editingCardId = ref(null);
 
-        // VARIÁVEL PARA O NOVO FILTRO DE RELATÓRIO
         const invoiceFilter = ref('all');
 
         const selectedReportCard = ref('');
@@ -885,7 +900,6 @@
           return { closingDate: getDateStr(selectedReportCard.value, targetY, targetM, 'closingDate'), dueDate: getDateStr(selectedReportCard.value, targetY, targetM, 'dueDate') };
         });
 
-        // ================= NOVO MOTOR DE FILTRO DO RELATÓRIO =================
         const invoiceTransactions = computed(() => {
           if (!selectedReportCard.value) return [];
           const cardId = selectedReportCard.value;
@@ -904,14 +918,13 @@
         const invoiceTotalMeu = computed(() => invoiceTransactions.value.filter(t => (t.owner || 'meu') === 'meu').reduce((sum, t) => sum + Number(t.amount), 0));
         const invoiceTotalPais = computed(() => invoiceTransactions.value.filter(t => t.owner === 'pais').reduce((sum, t) => sum + Number(t.amount), 0));
 
-        // Filtro final que alimenta a tabela visual do extrato
         const filteredInvoiceTransactions = computed(() => {
           if (invoiceFilter.value === 'meu') {
             return invoiceTransactions.value.filter(t => (t.owner || 'meu') === 'meu');
           } else if (invoiceFilter.value === 'pais') {
             return invoiceTransactions.value.filter(t => t.owner === 'pais');
           }
-          return invoiceTransactions.value; // 'all' retorna tudo
+          return invoiceTransactions.value; 
         });
 
         const openInvoiceDateModal = () => { invoiceDateForm.value = { ...currentInvoiceDetails.value }; activeModal.value = 'invoice_dates'; };
@@ -920,6 +933,23 @@
           const periodKey = `${cardId}_${targetY}-${String(targetM+1).padStart(2,'0')}`;
           invoiceExceptions.value[periodKey] = { closingDate: invoiceDateForm.value.closingDate, dueDate: invoiceDateForm.value.dueDate };
           saveToStorage(); activeModal.value = null;
+        };
+
+        // ================= FUNÇÕES DE EXPORTAÇÃO (PDF / IMPRESSÃO) =================
+        const printReport = () => {
+          window.print();
+        };
+
+        const exportPDF = () => {
+          const element = document.getElementById('invoice-report-content');
+          const opt = {
+            margin:       0.5,
+            filename:     `Fatura_${currentInvoiceDetails.value.closingDate}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+          };
+          html2pdf().set(opt).from(element).save();
         };
 
         const openModal = (type) => {
@@ -1101,7 +1131,7 @@
           activeModal, openModal, txForm, txPaymentMethod, txIsPaid, availableCategories, editingTransactionId, editTransaction,
           saveTransaction, executeTransactionSave, markAsPaid, deleteTransaction, deleteInstallmentGroup, categoryForm, saveCategory, openCategoryFromTransaction, closeCategoryModal, editCategory, deleteCategory, accountForm, saveAccount, editAccount, deleteAccount, cardForm, saveCard, editCard, deleteCard,
           selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais, invoiceDateForm, openInvoiceDateModal, saveInvoiceDates,
-          invoiceFilter, filteredInvoiceTransactions, // <--- ADICIONADO AQUI
+          invoiceFilter, filteredInvoiceTransactions, printReport, exportPDF,
           uniqueDescriptions, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount,
           editingCategoryId, editingAccountId, editingCardId
         };
