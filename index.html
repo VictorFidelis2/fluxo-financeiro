@@ -315,7 +315,7 @@
               <button @click="openModal('account')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Nova Conta</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div v-for="acc in accounts" :key="acc.id" class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3 group relative">
+              <div v-for="acc in accounts" :key="acc.id" class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-start gap-3 group relative">
                 <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white text-sm overflow-hidden shrink-0" :style="{ backgroundColor: acc.color || '#3b82f6' }">
                   <img v-if="getBankLogo(acc.name)" :src="getBankLogo(acc.name)" class="w-full h-full object-cover p-1 bg-white" alt="">
                   <span v-else class="text-xl">🏦</span>
@@ -432,7 +432,7 @@
           </div>
         </section>
 
-        <!-- ================= TAB: RELATÓRIOS (NOVO BLOCO INTELIGENTE MEU/PAIS) ================= -->
+        <!-- ================= TAB: RELATÓRIOS (FILTROS CLICÁVEIS) ================= -->
         <section v-if="currentTab === 'reports'" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             
@@ -448,17 +448,20 @@
             </div>
 
             <div v-if="selectedReportCard">
-              <!-- Divisão de Custos da Fatura -->
+              <!-- Divisão de Custos da Fatura (AGORA SÃO BOTÕES CLICÁVEIS) -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <!-- Filtro Meu -->
+                <div @click="invoiceFilter = 'meu'" :class="['p-4 rounded-xl border transition cursor-pointer', invoiceFilter === 'meu' ? 'bg-indigo-50 dark:bg-indigo-900/40 border-indigo-500 ring-2 ring-indigo-500/50' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-400']">
                   <p class="text-xs text-slate-500 font-bold uppercase mb-1">Meu (Próprio)</p>
                   <p class="text-2xl font-bold text-indigo-600">{{ formatCurrency(invoiceTotalMeu) }}</p>
                 </div>
-                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <!-- Filtro Pais -->
+                <div @click="invoiceFilter = 'pais'" :class="['p-4 rounded-xl border transition cursor-pointer', invoiceFilter === 'pais' ? 'bg-purple-50 dark:bg-purple-900/40 border-purple-500 ring-2 ring-purple-500/50' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-purple-400']">
                   <p class="text-xs text-slate-500 font-bold uppercase mb-1">Meus Pais</p>
                   <p class="text-2xl font-bold text-purple-600">{{ formatCurrency(invoiceTotalPais) }}</p>
                 </div>
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                <!-- Filtro Todos -->
+                <div @click="invoiceFilter = 'all'" :class="['p-4 rounded-xl border transition cursor-pointer', invoiceFilter === 'all' ? 'bg-rose-50 dark:bg-rose-900/40 border-rose-500 ring-2 ring-rose-500/50' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-rose-400']">
                   <p class="text-xs text-slate-500 font-bold uppercase mb-1">Total da Fatura</p>
                   <p class="text-2xl font-bold text-rose-600">{{ formatCurrency(invoiceTotal) }}</p>
                 </div>
@@ -481,7 +484,7 @@
                 </button>
               </div>
 
-              <!-- Tabela de Lançamentos da Fatura -->
+              <!-- Tabela de Lançamentos da Fatura (AGORA USA A LISTA FILTRADA) -->
               <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
                 <table class="w-full text-left text-sm">
                   <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
@@ -493,7 +496,7 @@
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                    <tr v-for="item in invoiceTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40">
+                    <tr v-for="item in filteredInvoiceTransactions" :key="item.id" class="hover:bg-slate-50/75 dark:hover:bg-slate-800/40">
                       <td class="py-3 px-4 text-xs text-slate-500">{{ formatDate(item.date) }}</td>
                       <td class="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">
                         {{ item.description }}
@@ -507,8 +510,8 @@
                       </td>
                       <td class="py-3 px-4 text-right font-bold text-rose-600">{{ formatCurrency(item.amount) }}</td>
                     </tr>
-                    <tr v-if="invoiceTransactions.length === 0">
-                      <td colspan="4" class="py-6 text-center text-slate-500">Nenhum lançamento nesta fatura.</td>
+                    <tr v-if="filteredInvoiceTransactions.length === 0">
+                      <td colspan="4" class="py-6 text-center text-slate-500">Nenhum lançamento nesta fatura com este filtro.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -607,7 +610,7 @@
         </div>
       </div>
 
-      <!-- Modais Categoria, Conta, Cartão, Exceção Datas -->
+      <!-- Modais Adicionais -->
       <div v-if="activeModal === 'category'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCategory" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCategoryId ? 'Editar Categoria' : 'Nova Categoria' }}</h3><div><label class="block font-semibold mb-1">Nome da Categoria</label><input v-model="categoryForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Tipo</label><select v-model="categoryForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="income">Receita</option><option value="fixed_expense">Custo Fixo</option><option value="variable_expense">Custo Variável</option></select></div><div><label class="block font-semibold mb-1">Ícone</label><input v-model="categoryForm.icon" type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="closeCategoryModal" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
       <div v-if="activeModal === 'account'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveAccount" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingAccountId ? 'Editar Conta' : 'Nova Conta' }}</h3><div><label class="block font-semibold mb-1">Nome</label><input v-model="accountForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Tipo</label><select v-model="accountForm.type" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"><option value="checking">Corrente</option><option value="savings">Poupança</option></select></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="accountForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div></div><div><label class="block font-semibold mb-1">Saldo Inicial</label><input v-model.number="accountForm.balance" required step="0.01" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
       <div v-if="activeModal === 'card'" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"><div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6"><form @submit.prevent="saveCard" class="space-y-4 text-sm"><h3 class="text-lg font-bold">{{ editingCardId ? 'Editar Cartão' : 'Novo Cartão' }}</h3><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Apelido</label><input v-model="cardForm.name" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Banco</label><input v-model="cardForm.bank" required type="text" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">Fechamento</label><input v-model.number="cardForm.closingDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div><div><label class="block font-semibold mb-1">Vencimento</label><input v-model.number="cardForm.dueDay" required min="1" max="31" type="number" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg"></div></div><div><label class="block font-semibold mb-1">Cor</label><input v-model="cardForm.color" type="color" class="w-full h-[42px] rounded border border-slate-200"></div><div class="flex justify-end gap-2 pt-4"><button @click="activeModal = null" type="button" class="px-4 py-2 text-slate-600">Cancelar</button><button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button></div></form></div></div>
@@ -619,7 +622,7 @@
   <script>
     // AQUI INICIA A INTEGRAÇÃO COM O FIREBASE ==========================
     const firebaseConfig = {
-      apiKey: "AIzaSyC7aPuuv3OjoOeaRkdn3o7hyyJYnZBolHU",
+      apiKey: "AIzaSyC7aPuuv3OjoeaoRkdn3o7hyyjYnZBolHU",
       authDomain: "fluxo-financeiro-1ee39.firebaseapp.com",
       databaseURL: "https://fluxo-financeiro-1ee39-default-rtdb.firebaseio.com",
       projectId: "fluxo-financeiro-1ee39",
@@ -677,6 +680,9 @@
         const editingCategoryId = ref(null);
         const editingAccountId = ref(null);
         const editingCardId = ref(null);
+
+        // VARIÁVEL PARA O NOVO FILTRO DE RELATÓRIO
+        const invoiceFilter = ref('all');
 
         const selectedReportCard = ref('');
         const invoiceDateForm = ref({ closingDate: '', dueDate: '' });
@@ -879,6 +885,7 @@
           return { closingDate: getDateStr(selectedReportCard.value, targetY, targetM, 'closingDate'), dueDate: getDateStr(selectedReportCard.value, targetY, targetM, 'dueDate') };
         });
 
+        // ================= NOVO MOTOR DE FILTRO DO RELATÓRIO =================
         const invoiceTransactions = computed(() => {
           if (!selectedReportCard.value) return [];
           const cardId = selectedReportCard.value;
@@ -886,12 +893,26 @@
           let prevY = targetY; let prevM = targetM - 1; if (prevM < 0) { prevM = 11; prevY--; }
           const prevClosingStr = getDateStr(cardId, prevY, prevM, 'closingDate');
           const currClosingStr = getDateStr(cardId, targetY, targetM, 'closingDate');
-          return transactions.value.filter(t => { if (t.cardId !== cardId || t.type !== 'expense') return false; return t.date >= prevClosingStr && t.date < currClosingStr; }).sort((a,b) => a.date.localeCompare(b.date));
+
+          return transactions.value.filter(t => {
+            if (t.cardId !== cardId || t.type !== 'expense') return false;
+            return t.date >= prevClosingStr && t.date < currClosingStr;
+          }).sort((a,b) => a.date.localeCompare(b.date));
         });
 
         const invoiceTotal = computed(() => invoiceTransactions.value.reduce((sum, t) => sum + Number(t.amount), 0));
         const invoiceTotalMeu = computed(() => invoiceTransactions.value.filter(t => (t.owner || 'meu') === 'meu').reduce((sum, t) => sum + Number(t.amount), 0));
         const invoiceTotalPais = computed(() => invoiceTransactions.value.filter(t => t.owner === 'pais').reduce((sum, t) => sum + Number(t.amount), 0));
+
+        // Filtro final que alimenta a tabela visual do extrato
+        const filteredInvoiceTransactions = computed(() => {
+          if (invoiceFilter.value === 'meu') {
+            return invoiceTransactions.value.filter(t => (t.owner || 'meu') === 'meu');
+          } else if (invoiceFilter.value === 'pais') {
+            return invoiceTransactions.value.filter(t => t.owner === 'pais');
+          }
+          return invoiceTransactions.value; // 'all' retorna tudo
+        });
 
         const openInvoiceDateModal = () => { invoiceDateForm.value = { ...currentInvoiceDetails.value }; activeModal.value = 'invoice_dates'; };
         const saveInvoiceDates = () => {
@@ -1080,6 +1101,7 @@
           activeModal, openModal, txForm, txPaymentMethod, txIsPaid, availableCategories, editingTransactionId, editTransaction,
           saveTransaction, executeTransactionSave, markAsPaid, deleteTransaction, deleteInstallmentGroup, categoryForm, saveCategory, openCategoryFromTransaction, closeCategoryModal, editCategory, deleteCategory, accountForm, saveAccount, editAccount, deleteAccount, cardForm, saveCard, editCard, deleteCard,
           selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais, invoiceDateForm, openInvoiceDateModal, saveInvoiceDates,
+          invoiceFilter, filteredInvoiceTransactions, // <--- ADICIONADO AQUI
           uniqueDescriptions, isInstallmentCheckbox, txInstallmentsCount, isRecurringCheckbox, recurringCount,
           editingCategoryId, editingAccountId, editingCardId
         };
