@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- Tags atualizadas para Web App Mobile sem avisos no console -->
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0f172a">
@@ -77,14 +79,14 @@
         <form @submit.prevent="handleLogin" class="space-y-4">
           <div>
             <label class="block text-sm font-semibold mb-1">E-mail</label>
-            <input v-model="loginEmail" type="email" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm">
+            <input v-model="loginEmail" type="email" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm">
           </div>
           <div>
             <label class="block text-sm font-semibold mb-1">Senha</label>
-            <input v-model="loginPassword" type="password" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm">
+            <input v-model="loginPassword" type="password" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm">
           </div>
-          <div v-if="loginError" class="p-3 rounded-lg bg-rose-500/10 text-rose-600 text-xs font-semibold text-center">{{ loginError }}</div>
-          <button type="submit" :disabled="isLoggingIn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg">{{ isLoggingIn ? 'Verificando...' : 'Entrar' }}</button>
+          <div v-if="loginError" class="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-semibold text-center leading-relaxed">{{ loginError }}</div>
+          <button type="submit" :disabled="isLoggingIn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition">{{ isLoggingIn ? 'Verificando...' : 'Entrar' }}</button>
         </form>
 
         <div class="mt-6 flex items-center justify-between">
@@ -641,8 +643,9 @@
 
   <script>
     // AQUI INICIA A INTEGRAÇÃO COM O FIREBASE ==========================
+    // Configuração atualizada exatamente com a chave original do projeto
     const firebaseConfig = {
-      apiKey: "AIzaSyC7aPuuv3OjoOeaRkdn3o7hyyJYnZBolHU",
+      apiKey: "AIzaSyC7aPuuv3OjoeaoRkdn3o7hyyjYnZBolHU",
       authDomain: "fluxo-financeiro-1ee39.firebaseapp.com",
       databaseURL: "https://fluxo-financeiro-1ee39-default-rtdb.firebaseio.com",
       projectId: "fluxo-financeiro-1ee39",
@@ -722,17 +725,50 @@
         const installments = ref([]);
         const invoiceExceptions = ref({}); 
 
+        // Função auxiliar para traduzir os erros do Firebase de forma clara e didática
+        const parseAuthError = (error) => {
+          console.error("Detalhes do erro Firebase:", error);
+          const code = error.code || '';
+          const msg = error.message || '';
+          if (code.includes('api-key-not-valid') || msg.includes('api-key-not-valid')) {
+            return 'A chave de API (apiKey) do Firebase foi bloqueada ou é inválida. Verifique no console do Google Cloud se a chave está ativa.';
+          }
+          if (code === 'auth/unauthorized-domain') {
+            return 'Este domínio não está autorizado no Firebase. Adicione o site em Authentication > Settings > Domínios autorizados.';
+          }
+          if (code === 'auth/popup-blocked') {
+            return 'A janela pop-up foi bloqueada pelo navegador. Permita pop-ups para este site.';
+          }
+          if (code === 'auth/popup-closed-by-user') {
+            return 'A janela de login do Google foi fechada antes de concluir.';
+          }
+          if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+            return 'E-mail ou senha incorretos. Verifique os dados e tente novamente.';
+          }
+          return 'Erro ao autenticar (' + (code || 'desconhecido') + '). Verifique o console.';
+        };
+
         const handleLogin = async () => {
-          isLoggingIn.value = true; loginError.value = '';
-          try { await auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value); } 
-          catch (error) { loginError.value = 'As credenciais estão incorretas. Tente novamente.'; isLoggingIn.value = false; }
+          isLoggingIn.value = true;
+          loginError.value = '';
+          try {
+            await auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value);
+          } catch (error) {
+            loginError.value = parseAuthError(error);
+            isLoggingIn.value = false;
+          }
         };
 
         const handleGoogleLogin = async () => {
-          isLoggingIn.value = true; loginError.value = '';
+          isLoggingIn.value = true;
+          loginError.value = '';
           const provider = new firebase.auth.GoogleAuthProvider();
-          try { await auth.signInWithPopup(provider); } 
-          catch (error) { console.error("Erro Google:", error); loginError.value = "Erro na janela do Google. Tente novamente."; isLoggingIn.value = false; }
+          try {
+            await auth.signInWithPopup(provider);
+          } catch (error) {
+            loginError.value = parseAuthError(error);
+            isLoggingIn.value = false;
+          }
         };
 
         const handleLogout = async () => {
@@ -857,9 +893,11 @@
 
         const filteredTransactions = computed(() => {
           return currentMonthTransactions.value.filter(item => {
-            if (searchQuery.value && !item.description.toLowerCase().includes(searchQuery.value.toLowerCase())) return false;
+            const q = searchQuery.value.toLowerCase();
+            if (q && !item.description.toLowerCase().includes(q) && !(item.subCategory && item.subCategory.toLowerCase().includes(q))) return false;
             if (filterType.value !== 'all' && item.type !== filterType.value) return false;
             if (filterCategory.value !== 'all' && item.categoryId !== filterCategory.value) return false;
+            if (filterSubCategory.value !== 'all' && (item.subCategory || '').trim() !== filterSubCategory.value) return false;
             if (filterOwner.value !== 'all' && (item.owner || 'meu') !== filterOwner.value) return false;
             if (filterStatus.value !== 'all' && item.status !== filterStatus.value) return false;
             if (filterInstallment.value === 'installment_only' && !item.installmentTotal) return false;
@@ -874,7 +912,13 @@
             const relTx = transactions.value.filter(t => t.installmentId === inst.id);
             const paidTx = relTx.filter(t => t.status === 'paid');
             const pendingTx = relTx.filter(t => t.status !== 'paid');
-            return { ...inst, totalCount: inst.installmentsCount, paidCount: paidTx.length, remainingAmount: pendingTx.reduce((sum, t) => sum + Number(t.amount), 0) };
+            return {
+              ...inst,
+              totalCount: inst.installmentsCount,
+              paidCount: paidTx.length,
+              paidAmount: paidTx.reduce((sum, t) => sum + Number(t.amount), 0),
+              remainingAmount: pendingTx.reduce((sum, t) => sum + Number(t.amount), 0)
+            };
           });
         });
 
