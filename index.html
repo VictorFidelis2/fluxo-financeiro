@@ -200,17 +200,45 @@
               <button @click="openModal('transaction')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-sm font-medium transition">+ Lançamento</button>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-7 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+            <!-- GRADE DE FILTROS COM O NOVO FILTRO DE MODO FATURA (8 COLUNAS) -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <!-- Novo Seletor: Mês Calendário vs Ciclo da Fatura -->
+              <select v-model="filterViewMode" :class="['border rounded-lg p-2 font-semibold transition', filterViewMode === 'invoice' ? 'bg-indigo-50 dark:bg-indigo-950/80 border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700']">
+                <option value="month">📅 Mês Calendário</option>
+                <option value="invoice">📄 Ciclo da Fatura</option>
+              </select>
+
+              <select v-model="filterCard" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2">
+                <option value="all">Cartão (Todos)</option>
+                <option v-for="c in creditCards" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+
               <select v-model="filterType" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2"><option value="all">Tipos</option><option value="income">Entradas (+)</option><option value="expense">Despesas (-)</option><option value="transfer">Transferências</option></select>
               <select v-model="filterCategory" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2"><option value="all">Categorias</option><option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option></select>
               <select v-model="filterSubCategory" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2"><option value="all">Subgrupos</option><option v-for="sub in availableSubCategories" :key="sub" :value="sub">{{ sub }}</option></select>
               <select v-model="filterOwner" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2"><option value="all">Responsável</option><option value="meu">Meu</option><option value="pais">Pais</option></select>
               <select v-model="filterStatus" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2"><option value="all">Status</option><option value="paid">Pagos / Receb.</option><option value="pending">Pendentes</option></select>
               <select v-model="filterInstallment" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2"><option value="all">Forma Pgto</option><option value="installment_only">Parceladas</option><option value="single_only">À Vista</option></select>
-              <select v-model="filterCard" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2">
-                <option value="all">Cartão (Todos)</option>
-                <option v-for="c in creditCards" :key="c.id" :value="c.id">{{ c.name }}</option>
-              </select>
+            </div>
+
+            <!-- PAINEL DE CONFERÊNCIA RÁPIDA (Aparece quando "Ciclo da Fatura" está ativo ou quando um Cartão é selecionado) -->
+            <div v-if="filterViewMode === 'invoice' || filterCard !== 'all'" class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs bg-slate-50/60 dark:bg-slate-800/30 p-3 rounded-xl">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-1 rounded bg-indigo-500/10 text-indigo-500 font-bold">
+                  {{ filterViewMode === 'invoice' ? '📄 Modo Conferência de Fatura' : '📅 Visão Mensal do Cartão' }}
+                </span>
+                <span v-if="filterViewMode === 'invoice' && selectedCardCycleInfo" class="text-slate-500 dark:text-slate-400">
+                  Período: <strong class="text-slate-700 dark:text-slate-200">{{ formatDate(selectedCardCycleInfo.start) }}</strong> até <strong class="text-slate-700 dark:text-slate-200">{{ formatDate(selectedCardCycleInfo.end) }}</strong> (Venc: {{ formatDate(selectedCardCycleInfo.due) }})
+                </span>
+                <span v-else-if="filterViewMode === 'invoice'" class="text-slate-500 dark:text-slate-400">
+                  Exibindo lançamentos no ciclo de fechamento de cada cartão em {{ currentMonthFormatted }}.
+                </span>
+              </div>
+              <div class="flex flex-wrap items-center gap-4">
+                <div><span class="text-slate-400">Meu:</span> <strong class="text-indigo-500 ml-1">{{ formatCurrency(filteredTotals.meu) }}</strong></div>
+                <div><span class="text-slate-400">Pais:</span> <strong class="text-purple-500 ml-1">{{ formatCurrency(filteredTotals.pais) }}</strong></div>
+                <div class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20"><span class="text-slate-400">Total Listado:</span> <strong class="text-rose-500 ml-1 text-sm">{{ formatCurrency(filteredTotals.total) }}</strong></div>
+              </div>
             </div>
           </div>
 
@@ -643,7 +671,6 @@
 
   <script>
     // AQUI INICIA A INTEGRAÇÃO COM O FIREBASE ==========================
-    // Configuração atualizada exatamente com a chave original do projeto
     const firebaseConfig = {
       apiKey: "AIzaSyC7aPuuv3OjoeaoRkdn3o7hyyjYnZBolHU",
       authDomain: "fluxo-financeiro-1ee39.firebaseapp.com",
@@ -679,6 +706,7 @@
         const previousModal = ref(null);
 
         const searchQuery = ref('');
+        const filterViewMode = ref('month'); // 'month' (Mês Calendário) ou 'invoice' (Ciclo da Fatura)
         const filterType = ref('all');
         const filterCategory = ref('all');
         const filterSubCategory = ref('all');
@@ -725,7 +753,6 @@
         const installments = ref([]);
         const invoiceExceptions = ref({}); 
 
-        // Função auxiliar para traduzir os erros do Firebase de forma clara e didática
         const parseAuthError = (error) => {
           console.error("Detalhes do erro Firebase:", error);
           const code = error.code || '';
@@ -865,6 +892,44 @@
           try { await db.ref('fluxoData').set(payload); } catch (e) {}
         };
 
+        // Função para descobrir a data de fechamento ou vencimento de qualquer cartão em qualquer mês
+        const getDateStr = (cardId, year, month, type) => {
+          const periodKey = `${cardId}_${year}-${String(month+1).padStart(2,'0')}`;
+          const exc = invoiceExceptions.value[periodKey];
+          if (exc && exc[type]) return exc[type];
+          const card = creditCards.value.find(c => c.id === cardId);
+          const day = card ? (type === 'closingDate' ? card.closingDay : card.dueDay) : 1;
+          return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        };
+
+        // Nova função: Verifica se um lançamento pertence ao Ciclo da Fatura do mês selecionado no topo
+        const isTransactionInCurrentInvoice = (t) => {
+          if (!t.cardId || t.type !== 'expense') return false;
+          const targetY = currentDate.value.getFullYear();
+          const targetM = currentDate.value.getMonth();
+          let prevY = targetY;
+          let prevM = targetM - 1;
+          if (prevM < 0) { prevM = 11; prevY--; }
+          const prevClosingStr = getDateStr(t.cardId, prevY, prevM, 'closingDate');
+          const currClosingStr = getDateStr(t.cardId, targetY, targetM, 'closingDate');
+          return t.date >= prevClosingStr && t.date < currClosingStr;
+        };
+
+        // Exibe as datas de início, fim e vencimento quando um cartão está selecionado no modo Fatura
+        const selectedCardCycleInfo = computed(() => {
+          if (filterCard.value === 'all') return null;
+          const targetY = currentDate.value.getFullYear();
+          const targetM = currentDate.value.getMonth();
+          let prevY = targetY;
+          let prevM = targetM - 1;
+          if (prevM < 0) { prevM = 11; prevY--; }
+          return {
+            start: getDateStr(filterCard.value, prevY, prevM, 'closingDate'),
+            end: getDateStr(filterCard.value, targetY, targetM, 'closingDate'),
+            due: getDateStr(filterCard.value, targetY, targetM, 'dueDate')
+          };
+        });
+
         const totalAccountsBalance = computed(() => accounts.value.reduce((acc, curr) => acc + Number(curr.balance), 0));
         
         const currentMonthTransactions = computed(() => {
@@ -891,8 +956,13 @@
           return Array.from(subs).sort();
         });
 
+        // Lista de lançamentos atualizada: alterna entre Mês Calendário e Ciclo da Fatura
         const filteredTransactions = computed(() => {
-          return currentMonthTransactions.value.filter(item => {
+          const sourceList = filterViewMode.value === 'invoice'
+            ? transactions.value.filter(t => isTransactionInCurrentInvoice(t))
+            : currentMonthTransactions.value;
+
+          return sourceList.filter(item => {
             const q = searchQuery.value.toLowerCase();
             if (q && !item.description.toLowerCase().includes(q) && !(item.subCategory && item.subCategory.toLowerCase().includes(q))) return false;
             if (filterType.value !== 'all' && item.type !== filterType.value) return false;
@@ -905,6 +975,20 @@
             if (filterCard.value !== 'all' && item.cardId !== filterCard.value) return false;
             return true;
           }).sort((a,b) => b.date.localeCompare(a.date));
+        });
+
+        // Soma rápida dos lançamentos filtrados para auxiliar na conferência da fatura
+        const filteredTotals = computed(() => {
+          let meu = 0, pais = 0, total = 0;
+          filteredTransactions.value.forEach(t => {
+            if (t.type === 'expense') {
+              const val = Number(t.amount) || 0;
+              total += val;
+              if (t.owner === 'pais') pais += val;
+              else meu += val;
+            }
+          });
+          return { meu, pais, total };
         });
 
         const installmentSummaryList = computed(() => {
@@ -932,15 +1016,6 @@
         const translateStatus = (st) => ({ paid: 'Pago', received: 'Recebido', pending: 'Pendente' }[st] || st);
         
         const availableCategories = computed(() => categories.value.filter(c => txForm.value.type === 'income' ? c.type === 'income' : c.type !== 'income'));
-
-        const getDateStr = (cardId, year, month, type) => {
-          const periodKey = `${cardId}_${year}-${String(month+1).padStart(2,'0')}`;
-          const exc = invoiceExceptions.value[periodKey];
-          if (exc && exc[type]) return exc[type];
-          const card = creditCards.value.find(c => c.id === cardId);
-          const day = card ? (type === 'closingDate' ? card.closingDay : card.dueDay) : 1;
-          return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        };
 
         const currentInvoiceDetails = computed(() => {
           if (!selectedReportCard.value) return { closingDate: '', dueDate: '' };
@@ -1174,8 +1249,8 @@
           appName, appIcon, isAuthenticated, isLoggingIn, loginEmail, loginPassword, loginError, handleLogin, handleGoogleLogin, handleLogout,
           getBankLogo, isDark, currentTab, tabs, currentMonthFormatted, changeMonth, toggleTheme, formatCurrency, formatDate,
           accounts, creditCards, categories, transactions, installments, totalAccountsBalance, monthMetrics, projectedMonthEndBalance, totalFutureInstallmentsAmount,
-          filteredTransactions, installmentSummaryList, getCategoryName, getAccountName, getCardName, getCardBank, getCardSpent, getCardSpentByOwner, getCategoryMonthlySpent, translateStatus,
-          searchQuery, filterType, filterCategory, filterSubCategory, filterOwner, filterStatus, filterInstallment, filterCard, availableSubCategories, 
+          filteredTransactions, filteredTotals, selectedCardCycleInfo, installmentSummaryList, getCategoryName, getAccountName, getCardName, getCardBank, getCardSpent, getCardSpentByOwner, getCategoryMonthlySpent, translateStatus,
+          searchQuery, filterViewMode, filterType, filterCategory, filterSubCategory, filterOwner, filterStatus, filterInstallment, filterCard, availableSubCategories, 
           activeModal, openModal, txForm, txPaymentMethod, txIsPaid, availableCategories, editingTransactionId, editTransaction,
           saveTransaction, executeTransactionSave, markAsPaid, deleteTransaction, deleteInstallmentGroup, categoryForm, saveCategory, openCategoryFromTransaction, closeCategoryModal, editCategory, deleteCategory, accountForm, saveAccount, editAccount, deleteAccount, cardForm, saveCard, editCard, deleteCard,
           selectedReportCard, currentInvoiceDetails, invoiceTransactions, invoiceTotal, invoiceTotalMeu, invoiceTotalPais, invoiceDateForm, openInvoiceDateModal, saveInvoiceDates,
